@@ -15,14 +15,13 @@ export const authStrategy = () =>
     },
     async (payload: ExpressUser, done: VerifiedCallback) => {
       try {
-        const { username, email, id } = payload;
+        const { email, id } = payload;
         const user = await PigeonDbClient.checkUserExists({
-          username,
           email,
           id,
         });
         if (user) {
-          done(null, false);
+          done(null, user);
         } else {
           done(null, false);
         }

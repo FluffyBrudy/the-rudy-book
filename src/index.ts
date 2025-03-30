@@ -4,6 +4,7 @@ import { ApiError } from "./errors/errors";
 import { verifyAuth } from "./middleware/authVerification";
 import { authStrategy } from "./middleware/autStrategy";
 import { mainSession } from "./middleware/mainSession";
+import { MainRouter } from "./routers/mainRouter";
 
 require("dotenv").config();
 
@@ -16,6 +17,8 @@ passport.use(authStrategy());
 app.get("/", (req, res, next) => {
   res.json("hi how  r u");
 });
+
+app.use("/api", MainRouter);
 
 app.use(verifyAuth);
 
@@ -30,6 +33,6 @@ app.use((err: ApiError, _: Request, res: Response, __: NextFunction) => {
 
 if (process.env.NODE_ENV === "dev") {
   app.listen(3000, () => {
-    console.log("Running at http://localhost:5173");
+    console.log("Running at http://localhost:3000");
   });
 }

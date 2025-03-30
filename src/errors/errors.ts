@@ -1,6 +1,6 @@
 import { ValidationError, FieldValidationError } from "express-validator";
 import { logger } from "../logger/logger";
-import * as ERRORS from "../global/errors";
+import * as ERRORS from "../global/errorMessage";
 
 const formatMsg = (msg: string | undefined) => (msg ? msg + " " : "");
 
@@ -22,6 +22,9 @@ class ApiError extends Error {
     switch (status) {
       case 400:
         errorMsg += ERRORS.BAD_REQUEST_ERROR;
+        break;
+      case 422:
+        errorMsg += ERRORS.UNPROCESSABLE_ENTITY_ERROR;
         break;
       case 401:
         errorMsg += ERRORS.UNAUTHORIZED_ERROR;
@@ -69,7 +72,7 @@ class BodyValidationError extends Error {
       const castedCurr = curr as FieldValidationError;
       return accm + `${castedCurr.path}: ${curr.msg};`;
     }, "");
-    this.status = 400;
+    this.status = 422;
     this.name = "ValidationError";
   }
 }
