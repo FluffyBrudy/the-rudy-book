@@ -6,7 +6,7 @@ class DBClient extends PrismaClient {
   private constructor() {
     super();
   }
-  
+
   static getInstance() {
     if (!this.instance) {
       DBClient.instance = new DBClient();
@@ -15,4 +15,4 @@ class DBClient extends PrismaClient {
   }
 }
 
-export const db = DBClient.getInstance();
+export const pigeonDbClient = DBClient.getInstance();

@@ -1,4 +1,3 @@
-import { ValidationError, FieldValidationError } from "express-validator";
 import { logger } from "../logger/logger";
 import * as ERRORS from "../global/errorMessage";
 
@@ -66,12 +65,9 @@ class LoggerApiError extends ApiError {
 
 class BodyValidationError extends Error {
   public status: number;
-  constructor(errors: Array<ValidationError>) {
+  constructor(errors: string[]) {
     super();
-    this.message = errors.reduce((accm, curr) => {
-      const castedCurr = curr as FieldValidationError;
-      return accm + `${castedCurr.path}: ${curr.msg};`;
-    }, "");
+    this.message = errors.reduce((accm, error) => accm + error + ";", "");
     this.status = 422;
     this.name = "ValidationError";
   }

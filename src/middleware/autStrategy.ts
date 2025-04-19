@@ -3,9 +3,9 @@ import {
   Strategy as JWTStrategy,
   VerifiedCallback,
 } from "passport-jwt";
-import { PigeonDbClient } from "../db/pigeonDbClient";
 import { logger } from "../logger/logger";
 import { ExpressUser } from "../types/global";
+import { pigeonDbClient } from "../db/pigeonClient/pigeonClient";
 
 export const authStrategy = () =>
   new JWTStrategy(
@@ -16,9 +16,8 @@ export const authStrategy = () =>
     async (payload: ExpressUser, done: VerifiedCallback) => {
       try {
         const { email, id } = payload;
-        const user = await PigeonDbClient.checkUserExists({
-          email,
-          id,
+        const user = await pigeonDbClient.user.findUnique({
+          where: { email, id },
         });
         if (user) {
           done(null, user);
@@ -26,6 +25,7 @@ export const authStrategy = () =>
           done(null, false);
         }
       } catch (error) {
+        console.error(error);
         logger.error(error);
         done(error, false);
       }

@@ -1,21 +1,22 @@
 import { RequestHandler } from "express";
 import passport from "passport";
-import { ApiError, LoggerApiError } from "../errors/errors";
+import { ApiError } from "../errors/errors";
 import { ExpressUser } from "../types/global";
 
-export const verifyAuth: RequestHandler = (req, res, next) => {
-  passport.authenticate(
-    "jwt",
-    { session: false },
-    (err: ApiError | LoggerApiError, user: ExpressUser) => {
-      if (err) {
-        return next(new LoggerApiError(err, 401));
+export const verifyAuth = () => {
+  const middleware: RequestHandler = (req, res, next) => {
+    return passport.authenticate(
+      "jwt",
+      { session: false },
+      (err: ApiError, user: ExpressUser) => {
+        if (err) return next(err);
+        if (!user) {
+          return next(new ApiError(401, "User"));
+        }
+        req.user = user;
+        next();
       }
-      if (!user) {
-        return next(new ApiError(401));
-      }
-      req.user = user;
-      next();
-    }
-  )(req, res, next);
+    )(req, res, next);
+  };
+  return middleware;
 };

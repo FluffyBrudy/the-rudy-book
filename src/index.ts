@@ -1,38 +1,31 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import passport from "passport";
-import { ApiError } from "./errors/errors";
-import { verifyAuth } from "./middleware/authVerification";
 import { authStrategy } from "./middleware/autStrategy";
 import { mainSession } from "./middleware/mainSession";
 import { MainRouter } from "./routers/mainRouter";
+import { API } from "./routers/constants";
+import { errorMiddleware } from "./middleware/error";
+import { verifyDbConnection } from "./middleware/dbConnection";
+import { connectToDatabase } from "./db/mongoClient/mongoClient";
 
 require("dotenv").config();
 
+connectToDatabase();
 const app = express();
 app.use(mainSession());
 app.use(express.json());
 app.use(passport.session());
+
+app.use(verifyDbConnection);
+
+app.use(API.ROOT, MainRouter);
 passport.use(authStrategy());
 
-app.get("/", (req, res, next) => {
-  res.json("hi how  r u");
-});
-
-app.use("/api", MainRouter);
-
-app.use(verifyAuth);
-
-app.get("/protected", (req, res, next) => {
-  res.json("this is protected route");
-});
-
-app.use((err: ApiError, _: Request, res: Response, __: NextFunction) => {
-  const { status, message } = err;
-  res.status(status).json(message);
-});
+app.use(errorMiddleware());
 
 if (process.env.NODE_ENV === "dev") {
-  app.listen(3000, () => {
-    console.log("Running at http://localhost:3000");
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log("Running at http://localhost:" + PORT);
   });
 }
