@@ -5,7 +5,6 @@ import { ApiError, BodyValidationError } from "../../errors/errors";
 import { ValidationError } from "yup";
 import { mongoDbClient } from "../../db/mongoClient/mongoSchema";
 import { MongooseError } from "mongoose";
-// import { EReactions } from "../../types/enums";
 
 export const CreatePostController: RequestHandler = async (req, res, next) => {
   try {
