@@ -11,7 +11,9 @@ export const verifyAuth = () => {
       (err: ApiError, user: ExpressUser) => {
         if (err) return next(err);
         if (!user) {
-          return next(new ApiError(401, "User"));
+          return next(
+            new ApiError(401, "Authentication required: User not found", true)
+          );
         }
         req.user = user;
         next();

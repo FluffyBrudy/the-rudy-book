@@ -25,7 +25,6 @@ export const authStrategy = () =>
           done(null, false);
         }
       } catch (error) {
-        console.error(error);
         logger.error(error);
         done(error, false);
       }
