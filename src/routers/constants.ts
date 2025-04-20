@@ -40,3 +40,8 @@ export enum POST {
   ROOT = "/post",
   CREATE = "/create",
 }
+
+export enum COMMENT {
+  ROOT = "/comment",
+  CREATE = "/create",
+}

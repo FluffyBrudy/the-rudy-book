@@ -10,7 +10,9 @@ export interface IPost extends IUser {
   content: string;
   createdAt?: Date;
   comments?: Array<IComment>;
-  reactions?: Array<IReaction>;
+  reactions?: {
+    [K in keyof EReactions]: EReactions;
+  };
 }
 
 export interface IComment extends IUser {
@@ -18,7 +20,9 @@ export interface IComment extends IUser {
   content: string;
   createdAt: Date;
   parentCommentId?: string;
-  reactions: Array<IReaction>;
+  reactions?: {
+    [K in keyof EReactions]: EReactions;
+  };
   replies: Array<IComment>;
 }
 

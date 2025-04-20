@@ -1,5 +1,4 @@
 import { model, Schema, InferSchemaType, Types } from "mongoose";
-import { validate as isUUID } from "uuid";
 import { EReactions } from "../../types/enums";
 import { COLLECTIONS } from "./constants";
 
@@ -8,8 +7,8 @@ const CommentSchema = new Schema({
     type: Schema.Types.UUID,
     required: true,
     validate: {
-      validator: (v: Types.UUID) => isUUID(v),
-      message: "Invalid user id",
+      validator: (v: string) => Types.UUID.isValid(v),
+      message: "Invalid user id :)",
     },
   },
   username: { type: String, required: true, minlength: 4, maxlength: 50 },

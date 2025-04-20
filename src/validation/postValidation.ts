@@ -2,12 +2,12 @@ import { ObjectSchema, object as zobject, string as zstring } from "yup";
 import { CONTENT, USERNAME } from "./constants";
 import { IPost } from "../types/mongoClient";
 
-type TPostSchemaValidation = Omit<
+type IPostSchemaValidation = Omit<
   IPost,
   "reactions" | "comments" | "createdAt"
 >;
 
-export const PostSchemaValidation: ObjectSchema<TPostSchemaValidation> =
+export const PostSchemaValidation: ObjectSchema<IPostSchemaValidation> =
   zobject().shape({
     username: zstring()
       .required("Username is required")
