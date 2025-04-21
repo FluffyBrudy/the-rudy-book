@@ -5,6 +5,7 @@ import { ValidationError as YupValidationError } from "yup";
 import { ApiError, BodyValidationError } from "../../errors/errors";
 import { MongooseError } from "mongoose";
 import { mongoDbClient } from "../../db/mongoClient/mongoSchema";
+import { ExpressUser } from "../../types/global";
 
 export const CreateCommentController: RequestHandler = async (
   req,
@@ -17,12 +18,13 @@ export const CreateCommentController: RequestHandler = async (
       abortEarly: false,
       stripUnknown: true,
     });
-    console.log(commentValidation);
     const session = await mongoDbClient.Comment.startSession();
+    const { username, id, imageUrl } = req.user as ExpressUser;
     try {
       await session.withTransaction(async () => {
         const comment = await mongoDbClient.Comment.create({
           ...commentValidation,
+          ...{ userId: id, username, imageUrl },
         });
         await mongoDbClient.Post.updateOne(
           { _id: comment.postId },

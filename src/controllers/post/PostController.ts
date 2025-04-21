@@ -5,6 +5,7 @@ import { ApiError, BodyValidationError } from "../../errors/errors";
 import { ValidationError } from "yup";
 import { mongoDbClient } from "../../db/mongoClient/mongoSchema";
 import { MongooseError } from "mongoose";
+import { ExpressUser } from "../../types/global";
 
 export const CreatePostController: RequestHandler = async (req, res, next) => {
   try {
@@ -12,9 +13,11 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
       abortEarly: false,
       stripUnknown: true,
     });
+    const { username, id, imageUrl } = req.user as ExpressUser;
 
     const post = new mongoDbClient.Post({
       ...postValidation,
+      ...{ userId: id, username, imageUrl },
     });
 
     await post.save();

@@ -18,9 +18,16 @@ export const authStrategy = () =>
         const { email, id } = payload;
         const user = await pigeonDbClient.user.findUnique({
           where: { email, id },
+          select: {
+            username: true,
+            email: true,
+            id: true,
+            Profile: { select: { picture: true } },
+          },
         });
         if (user) {
-          done(null, user);
+          const { username, email, id, Profile } = user;
+          done(null, { username, email, id, imageUrl: Profile!.picture });
         } else {
           done(null, false);
         }
