@@ -46,7 +46,11 @@ export const performTransection = async (
 ) => {
   const session = mongoClient.startSession();
 
-  const status = { success: false, error: null as null | string };
+  const status = {
+    success: false,
+    error: null as null | string,
+    cause: null as string | null | undefined,
+  };
 
   try {
     session.startTransaction();
@@ -57,9 +61,12 @@ export const performTransection = async (
   } catch (error) {
     logger.error(error);
     await safeAbortTransaction(session);
-    status.error = isMongError(error)
-      ? error.message
-      : (error as Error).message;
+    if (isMongError(error)) {
+      status.error = error.message;
+      status.cause = error.cause?.message;
+    } else {
+      status.error = (error as Error).message;
+    }
   } finally {
     session.endSession();
   }

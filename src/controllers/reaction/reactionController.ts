@@ -1,15 +1,20 @@
 import { RequestHandler } from "express";
-import { ObjectId } from "mongodb";
+import { MongoError, ObjectId } from "mongodb";
 import { ValidationError } from "yup";
 import {
   COLLECTIONS,
   mongoClientDb,
   performTransection,
 } from "../../db/mongoClient/mongoClient";
-import { BodyValidationError, LoggerApiError } from "../../errors/errors";
+import {
+  ApiError,
+  BodyValidationError,
+  LoggerApiError,
+} from "../../errors/errors";
 import { ExpressUser } from "../../types/global";
 import { IPost, IReaction } from "../../types/mongoClient";
 import { UserReactionValidation } from "../../validation/reactionValidation";
+import { UNPROCESSABLE_ENTITY_ERROR } from "../../global/errorMessage";
 
 export const CreateReactionController: RequestHandler = async (
   req,
@@ -29,7 +34,10 @@ export const CreateReactionController: RequestHandler = async (
       const dataExist = await mongoClientDb
         .collection(targetType)
         .findOne({ _id: new ObjectId(targetId) }, { session: session });
-      if (!dataExist) throw Error(targetType + " doesnt exist");
+      if (!dataExist)
+        throw new MongoError(targetType + " doesnt exist", {
+          cause: Error(UNPROCESSABLE_ENTITY_ERROR),
+        });
 
       const { insertedId } = await mongoClientDb
         .collection<IReaction>(COLLECTIONS.USER_REACTION)
@@ -45,8 +53,10 @@ export const CreateReactionController: RequestHandler = async (
     });
     if (response.success) {
       res.json({ data: { ...doc } });
+    } else if (response.cause === UNPROCESSABLE_ENTITY_ERROR) {
+      return next(new ApiError(422, `${targetType} doesnt exist`, true));
     } else {
-      res.json({ error: response.error });
+      return next(new ApiError(500));
     }
   } catch (error) {
     if (error instanceof ValidationError) {

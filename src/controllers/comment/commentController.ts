@@ -12,6 +12,7 @@ import { logger } from "../../logger/logger";
 import { ExpressUser } from "../../types/global";
 import { IComment } from "../../types/mongoClient";
 import { CommentSchemaValidation } from "../../validation/commentValidation";
+import { ObjectId } from "mongodb";
 
 export const CreateCommentController: RequestHandler = async (
   req,
@@ -39,6 +40,12 @@ export const CreateCommentController: RequestHandler = async (
       updatedAt: new Date(),
       replies: [],
     };
+
+    const postExist = await mongoClientDb
+      .collection(COLLECTIONS.POST)
+      .findOne({ _id: new ObjectId(postId) });
+
+    if (!postExist) return next(new ApiError(422));
 
     const inserted = await mongoClientDb
       .collection<IComment>(COLLECTIONS.COMMENT)
