@@ -6,7 +6,7 @@ export const UserReactionValidation = yobject().shape({
   targetId: ystring().required(`target id is required`).trim(),
   targetType: ystring()
     .oneOf([COLLECTIONS.COMMENT, COLLECTIONS.POST])
-    .required("id is required")
+    .required("target type is required")
     .trim(),
   reactionType: ystring()
     .oneOf(Object.values(EReactions))

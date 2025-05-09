@@ -18,15 +18,18 @@ export const CreateReactionController: RequestHandler = async (
 ) => {
   try {
     const { targetType, targetId, reactionType } =
-      await UserReactionValidation.validate(req.body);
+      await UserReactionValidation.validate(req.body, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
     const userId = (req.user as ExpressUser).id;
     const doc = { targetId, reactionType, targetType, userId };
 
-    await performTransection(async (session) => {
+    const response = await performTransection(async (session) => {
       const dataExist = await mongoClientDb
         .collection(targetType)
         .findOne({ _id: new ObjectId(targetId) }, { session: session });
-      if (!dataExist) throw Error("Data doesnt exist");
+      if (!dataExist) throw Error(targetType + " doesnt exist");
 
       const { insertedId } = await mongoClientDb
         .collection<IReaction>(COLLECTIONS.USER_REACTION)
@@ -40,7 +43,11 @@ export const CreateReactionController: RequestHandler = async (
           { session: session }
         );
     });
-    res.json({ data: { ...doc } });
+    if (response.success) {
+      res.json({ data: { ...doc } });
+    } else {
+      res.json({ error: response.error });
+    }
   } catch (error) {
     if (error instanceof ValidationError) {
       return next(new BodyValidationError(error.errors));
