@@ -21,7 +21,7 @@ export const CreateCommentController: RequestHandler = async (
 ) => {
   try {
     const { postId, parentCommentId, content } =
-      await CommentSchemaValidation.validate(req, {
+      await CommentSchemaValidation.validate(req.body, {
         abortEarly: false,
         stripUnknown: true,
       });
