@@ -44,5 +44,9 @@ export enum POST {
 export enum COMMENT {
   ROOT = "/comment",
   CREATE = "/create",
-  COMMENT_REACTION = "/reaction",
+}
+
+export enum REACTION {
+  ROOT = "/reaction",
+  CREATE = "/create",
 }

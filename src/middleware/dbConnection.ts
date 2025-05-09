@@ -4,9 +4,12 @@ import { LoggerApiError } from "../errors/errors";
 
 export const verifyDbConnection: RequestHandler = async (_, __, next) => {
   try {
-    if (!connected) await connectToDatabase();
+    if (!connected) {
+      await connectToDatabase();
+    }
     next();
   } catch (error) {
+    console.log(error);
     return next(new LoggerApiError(error, 500));
   }
 };

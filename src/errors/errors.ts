@@ -1,5 +1,6 @@
 import { logger } from "../logger/logger";
 import * as ERRORS from "../global/errorMessage";
+import { MongoError } from "mongodb";
 
 const formatMsg = (msg: string | undefined) => (msg ? msg + " " : "");
 
@@ -73,4 +74,12 @@ class BodyValidationError extends Error {
   }
 }
 
-export { ApiError, LoggerApiError, BodyValidationError };
+function isMongError(error: any): error is MongoError {
+  return (
+    typeof error === "object" &&
+    error != null &&
+    typeof error.hasErrorLabel === "function"
+  );
+}
+
+export { ApiError, LoggerApiError, BodyValidationError, isMongError };

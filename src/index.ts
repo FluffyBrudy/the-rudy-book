@@ -6,11 +6,9 @@ import { MainRouter } from "./routers/mainRouter";
 import { API } from "./routers/constants";
 import { errorMiddleware } from "./middleware/error";
 import { verifyDbConnection } from "./middleware/dbConnection";
-import { connectToDatabase } from "./db/mongoClient/mongoClient";
 
 require("dotenv").config();
 
-connectToDatabase();
 const app = express();
 app.use(mainSession());
 app.use(express.json());

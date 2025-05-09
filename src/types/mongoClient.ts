@@ -1,34 +1,38 @@
+import { ObjectId } from "mongodb";
 import { EReactions } from "./enums";
+import { ExpressUser } from "./global";
+import { COLLECTIONS } from "../db/mongoClient/mongoClient";
 
-export interface IUser {
-  username: string;
-  imageUrl: string;
-  userId: string; // comes from postgresql which i used on pigeon messanger project
-}
+type User = Omit<ExpressUser, "id"> & { userId: string };
 
-export interface IPost extends IUser {
+export type TComment = COLLECTIONS.COMMENT;
+export type TPost = COLLECTIONS.POST;
+
+export interface IPost extends User {
   content: string;
-  createdAt?: Date;
-  comments?: Array<IComment>;
-  reactions?: {
-    [K in keyof EReactions]: EReactions;
+  createdAt: Date;
+  comments: Array<IComment>;
+  reactions: {
+    [K in EReactions]: number;
   };
+  reactionIds: Array<ObjectId>;
 }
 
-export interface IComment extends IUser {
+export interface IComment extends User {
   postId: string;
   content: string;
   createdAt: Date;
+  updatedAt: Date;
   parentCommentId?: string;
-  reactions?: {
-    [K in keyof EReactions]: EReactions;
+  reactions: {
+    [K in EReactions]: number;
   };
   replies: Array<IComment>;
 }
 
-export interface IReaction extends IUser {
+export interface IReaction {
+  userId: string;
   targetId: string; // can be either comment id or post id
-  reactionType: {
-    [K in EReactions]: number;
-  };
+  reactionType: EReactions;
+  targetType: TComment | TPost;
 }
