@@ -13,3 +13,9 @@ export const CommentSchemaValidation = yobject().shape({
     ),
   parentCommentId: ystring().optional(),
 });
+
+export const ReplySchemaValidation = CommentSchemaValidation.concat(
+  yobject().shape({
+    commentId: ystring().required("post id is required"),
+  })
+);

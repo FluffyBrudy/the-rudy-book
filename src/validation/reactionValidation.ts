@@ -13,3 +13,15 @@ export const UserReactionValidation = yobject().shape({
     .required("reaction type is required")
     .trim(),
 });
+
+export const UserReactionRemovalValidation = yobject().shape({
+  reactionId: ystring().required(`reaction id is required`).trim(),
+  targetType: ystring()
+    .oneOf([COLLECTIONS.COMMENT, COLLECTIONS.POST])
+    .required("target type is required")
+    .trim(),
+  reactionType: ystring()
+    .oneOf(Object.values(EReactions))
+    .required("reaction type is required")
+    .trim(),
+});

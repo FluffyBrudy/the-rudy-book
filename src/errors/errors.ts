@@ -1,8 +1,7 @@
 import { logger } from "../logger/logger";
 import * as ERRORS from "../global/errorMessage";
-import { MongoError } from "mongodb";
 
-const formatMsg = (msg: string | undefined) => (msg ? msg + " " : "");
+const formatMsg = (msg: string | undefined) => (msg ? msg + "" : "");
 
 class ApiError extends Error {
   public status: number;
@@ -17,30 +16,32 @@ class ApiError extends Error {
     msgPrefixOrMsg?: string,
     fullReplace: boolean = false
   ) {
-    let errorMsg = formatMsg(msgPrefixOrMsg);
+    let errorMsg;
 
     switch (status) {
       case 400:
-        errorMsg += ERRORS.BAD_REQUEST_ERROR;
+        errorMsg = ERRORS.BAD_REQUEST_ERROR;
         break;
       case 422:
-        errorMsg += ERRORS.UNPROCESSABLE_ENTITY_ERROR;
+        errorMsg = ERRORS.UNPROCESSABLE_ENTITY_ERROR;
         break;
       case 401:
-        errorMsg += ERRORS.UNAUTHORIZED_ERROR;
+        errorMsg = ERRORS.UNAUTHORIZED_ERROR;
         break;
       case 403:
-        errorMsg += ERRORS.FORBIDDEN_ERROR;
+        errorMsg = ERRORS.FORBIDDEN_ERROR;
         break;
       case 404:
-        errorMsg += ERRORS.NOT_FOUND_ERROR;
+        errorMsg = ERRORS.NOT_FOUND_ERROR;
         break;
       case 409:
-        errorMsg += ERRORS.CONFLICT_ERROR;
+        errorMsg = ERRORS.CONFLICT_ERROR;
         break;
       default:
         errorMsg = ERRORS.INTERNAL_SERVER_ERROR;
     }
+
+    errorMsg += ":" + formatMsg(msgPrefixOrMsg);
 
     super(fullReplace ? msgPrefixOrMsg : errorMsg);
     Error.captureStackTrace(this, this.constructor);
@@ -74,12 +75,4 @@ class BodyValidationError extends Error {
   }
 }
 
-function isMongError(error: any): error is MongoError {
-  return (
-    typeof error === "object" &&
-    error != null &&
-    typeof error.hasErrorLabel === "function"
-  );
-}
-
-export { ApiError, LoggerApiError, BodyValidationError, isMongError };
+export { ApiError, LoggerApiError, BodyValidationError };
