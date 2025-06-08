@@ -1,3 +1,7 @@
+import { UploadApiResponse, UploadApiErrorResponse, v2 } from "cloudinary";
+import { uploadImageFromBuffer } from "../service/imageUpload";
+import { logger } from "../logger/logger";
+
 function generateGradient(name: string) {
   const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const color1 = `hsl(${hash % 360}, 70%, 60%)`;
@@ -24,4 +28,11 @@ function generateAvatarSVG(name: string, size = 64) {
   </text>
 </svg>
   `.trim();
+}
+
+export async function uploadDefaultProfileImage(name: string) {
+  const svgString = generateAvatarSVG(name);
+  const bufferData = Buffer.from(svgString);
+  const uploadResponse = await uploadImageFromBuffer(bufferData, name);
+  return uploadResponse?.secure_url ?? null;
 }

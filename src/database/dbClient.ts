@@ -36,5 +36,3 @@ async function main() {
     .execute();
   console.log(userInsertion);
 }
-
-main().catch((err) => console.error((err as Error).message));

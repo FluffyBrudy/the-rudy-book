@@ -11,11 +11,13 @@ export const verifyAuth = () => {
       (
         err: ApiError,
         user: ExpressUser,
-        info: { message: string; code: number }
+        info: { message: string } | undefined
       ) => {
         if (err) return next(err);
         if (!user) {
-          return next(new ApiError(401, "User"));
+          return next(
+            new ApiError(401, info?.message || "user", !!info?.message)
+          );
         }
         next();
       }

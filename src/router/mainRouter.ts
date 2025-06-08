@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { ROUTES } from "./routes";
 import { verifyAuth } from "../middleware/authVerification";
+import { AUTH } from "./routes";
+import { authRouter } from "./authRouter";
 
-export const mainRouter = Router();
+const mainRouter = Router();
 
-mainRouter.use(verifyAuth());
+mainRouter.use(AUTH.ROOT, authRouter);
 
-mainRouter.use(ROUTES.ROOT, (_, res, __) => {
-  res.json({ data: "data sent" });
-});
+// mainRouter.use(verifyAuth());
+
+export { mainRouter };

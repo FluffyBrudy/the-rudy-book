@@ -7,6 +7,8 @@ import { ApiError } from "./errors/errors";
 import { pigeonDb } from "./database/dbClient";
 import passport from "passport";
 import cors from "cors";
+import { errorHandler } from "./middleware/errorHandler";
+import { ROOT } from "./router/routes";
 
 require("dotenv").config();
 
@@ -60,9 +62,13 @@ passport.use(
   )
 );
 
-app.use(mainRouter);
+app.use(ROOT, mainRouter);
+app.use(errorHandler());
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
+  if (process.env.NODE_ENV !== "prod") {
+    console.log(require("express-list-endpoints")(app));
+  }
   console.log(`listening at port: http://localhost:${PORT}`);
 });

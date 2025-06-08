@@ -41,9 +41,13 @@ class ApiError extends Error {
         errorMsg = ERRORS.INTERNAL_SERVER_ERROR;
     }
 
-    errorMsg += ":" + formatMsg(msgPrefixOrMsg);
+    errorMsg = formatMsg(msgPrefixOrMsg) + ":" + errorMsg;
 
-    super(fullReplace ? msgPrefixOrMsg : errorMsg);
+    super(
+      fullReplace
+        ? msgPrefixOrMsg?.toLocaleLowerCase()
+        : errorMsg.toLocaleLowerCase()
+    );
     Error.captureStackTrace(this, this.constructor);
     this.status = status;
   }

@@ -4,11 +4,9 @@ export const logger = pino(
   transport({
     target: "pino-pretty",
     options: {
-      destination: "./logs.json",
+      destination: "./logs",
       colorize: false,
     },
     level: "error",
   })
 );
-
-logger.error({ error: { error: "acar" } });
