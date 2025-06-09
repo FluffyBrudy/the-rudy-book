@@ -73,7 +73,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
           })
           .execute();
       }
-      const responseObj = wrapResponse({ success: true });
+      const responseObj = wrapResponse<null>(null);
       res.json(responseObj);
     });
   } catch (error) {
@@ -94,7 +94,8 @@ export const LoginController: RequestHandler = async (req, res, next) => {
     const { email, password } = loginSchema.validateSync(req.body);
     const user = await pigeonDb
       .selectFrom("User")
-      .select(["User.id", "User.password", "User.username"])
+      .innerJoin("Profile", "Profile.userId", "User.id")
+      .select(["User.id", "User.password", "User.username", "Profile.picture"])
       .where("User.email", "=", email)
       .executeTakeFirst();
     if (!user) return next(new ApiError(404, "user"));
@@ -126,7 +127,8 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       accessToken,
       userId: user.id,
       username: user.username,
-      email,
+      email: email,
+      imageUrl: user.picture,
     });
     res.json(responseObj);
   } catch (error) {
