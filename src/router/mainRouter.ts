@@ -7,6 +7,6 @@ const mainRouter = Router();
 
 mainRouter.use(AUTH.ROOT, authRouter);
 
-// mainRouter.use(verifyAuth());
+mainRouter.use(verifyAuth());
 
 export { mainRouter };

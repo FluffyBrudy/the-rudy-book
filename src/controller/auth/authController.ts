@@ -17,7 +17,6 @@ import { pigeonDb } from "../../database/dbClient";
 import { uploadDefaultProfileImage } from "../../utils/avatar";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { DatabaseError } from "pg";
-import { logger } from "../../logger/logger";
 
 const loginSchema = yup.object().shape({
   email: yup.string().required().email("use proper email format"),
@@ -42,11 +41,7 @@ const registerSchema = loginSchema.concat(
   })
 );
 
-export const RegisterControllerPost: RequestHandler = async (
-  req,
-  res,
-  next
-) => {
+export const RegisterController: RequestHandler = async (req, res, next) => {
   try {
     const { username, email, password } = registerSchema.validateSync(
       req.body,
