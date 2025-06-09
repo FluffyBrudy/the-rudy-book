@@ -17,6 +17,7 @@ import { pigeonDb } from "../../database/dbClient";
 import { uploadDefaultProfileImage } from "../../utils/avatar";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { DatabaseError } from "pg";
+import { logger } from "../../logger/logger";
 
 const loginSchema = yup.object().shape({
   email: yup.string().required().email("use proper email format"),
@@ -133,5 +134,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       email,
     });
     res.json(responseObj);
-  } catch (error) {}
+  } catch (error) {
+    return next(new LoggerApiError(error, 500));
+  }
 };

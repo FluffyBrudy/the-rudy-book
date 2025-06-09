@@ -1,5 +1,6 @@
 import express from "express";
 import expressSession from "express-session";
+import cookieParser from "cookie-parser";
 import { mainRouter } from "./router/mainRouter";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { ExpressUser } from "./types/globalTypes";
@@ -24,6 +25,7 @@ const app = express();
 
 app.use(cors({ origin: "*", credentials: true })); // todo: filter origin
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 app.use(
   expressSession({

@@ -39,7 +39,6 @@ export async function uploadImageFromBuffer(imageBuffer: Buffer, name: string) {
   const publicId = name;
   try {
     const response = await makeUploadStream(imageBuffer, publicId);
-    console.log(response);
     const { secure_url } = response as UploadApiResponse;
     return { secure_url };
   } catch (err) {
