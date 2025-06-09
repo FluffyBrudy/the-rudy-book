@@ -50,11 +50,11 @@ passport.use(
     },
     async (user: ExpressUser, done) => {
       try {
-        const existingUser = pigeonDb
+        const existingUser = await pigeonDb
           .selectFrom("User")
           .select(["User.id", "User.username"])
           .where("User.id", "=", user.id)
-          .execute();
+          .executeTakeFirst();
         if (existingUser) return done(null, existingUser);
         else return done(new ApiError(404, "user:"), false);
       } catch (error) {

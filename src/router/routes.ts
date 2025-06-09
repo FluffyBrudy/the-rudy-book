@@ -5,3 +5,8 @@ export enum AUTH {
   REGISTER = "/register",
   LOGIN = "/login",
 }
+
+export enum POST {
+  ROOT = "/post",
+  CREATE = "/create",
+}

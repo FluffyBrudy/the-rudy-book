@@ -1,3 +1,5 @@
+import { BaseResponse } from "../types/apiResponse";
+
 export function wrapResponse<T>(
   data: T,
   statusCode = 200,

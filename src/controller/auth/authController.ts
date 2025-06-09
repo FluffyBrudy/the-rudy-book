@@ -17,6 +17,7 @@ import { pigeonDb } from "../../database/dbClient";
 import { uploadDefaultProfileImage } from "../../utils/avatar";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { DatabaseError } from "pg";
+import { LoginResponse } from "../../types/apiResponse";
 
 const loginSchema = yup.object().shape({
   email: yup.string().required().email("use proper email format"),
@@ -123,15 +124,18 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    const responseObj = wrapResponse({
+    const responseObj = wrapResponse<LoginResponse>({
       accessToken,
       userId: user.id,
       username: user.username,
       email: email,
-      imageUrl: user.picture,
+      profilePicture: user.picture,
     });
     res.json(responseObj);
   } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return next(new BodyValidationError(error.errors));
+    }
     return next(new LoggerApiError(error, 500));
   }
 };
