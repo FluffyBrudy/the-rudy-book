@@ -41,7 +41,7 @@ const registerSchema = loginSchema.concat(
   })
 );
 
-export const registerControllerPost: RequestHandler = async (
+export const RegisterControllerPost: RequestHandler = async (
   req,
   res,
   next
