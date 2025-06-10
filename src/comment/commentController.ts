@@ -48,8 +48,6 @@ export const CreateCommentController: RequestHandler = async (
         .executeTakeFirst(),
     ]);
 
-    if (!postExists) return next(new ApiError(400, "post doesnt exist", true));
-
     const comment = await mainDb
       .insertInto("comment")
       .values({
