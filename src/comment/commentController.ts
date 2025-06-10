@@ -43,15 +43,12 @@ export const CreateCommentController: RequestHandler = async (
     const { username, id } = req.user as ExpressUser;
     const userId = id;
 
-    const [postExists, userRes] = await Promise.all([
-      checkPostExist(postId),
-      pigeonDb
-        .selectFrom("Profile")
-        .select(["Profile.picture"])
-        .where("userId", "=", userId)
-        .limit(1)
-        .executeTakeFirst(),
-    ]);
+    const userRes = await pigeonDb
+      .selectFrom("Profile")
+      .select(["Profile.picture"])
+      .where("userId", "=", userId)
+      .limit(1)
+      .executeTakeFirst();
 
     const comment = await mainDb
       .insertInto("comment")
@@ -128,6 +125,9 @@ export const RetriveCommentsController: RequestHandler = async (
     );
     res.status(200).json(responseObjs);
   } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return next(new BodyValidationError(error.errors));
+    }
     return next(new LoggerApiError(error, 500));
   }
 };
