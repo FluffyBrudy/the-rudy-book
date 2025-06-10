@@ -50,7 +50,6 @@ export interface Post {
 
 export interface Reaction {
   image_url: string;
-  reaction_id: Generated<number>;
   reaction_on_id: number;
   reaction_on_type: string;
   reaction_type: string;
