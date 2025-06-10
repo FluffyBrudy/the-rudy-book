@@ -49,7 +49,7 @@ export type ReactionResponse = {
 export type CommentReplyResponse = {
   commentReplyId: number;
   createdAt: Date;
-  imageUrl: string;
+  profilePicture: string;
   parentCommentId: number;
   repliedById: string;
   replyContent: string;
