@@ -38,7 +38,7 @@ export const CreateCommentReplyController: RequestHandler = async (
     const commentReply = await mainDb
       .insertInto("comment_reply")
       .values({
-        parent_comment_id: parentCommentId,
+        parent_comment_id: parentCommentId, // again im notchecking because error come from db for fkey violation if comment doesnt exist
         replied_by_id: user.id,
         reply_content: replyContent,
         username: user.username,
@@ -57,7 +57,7 @@ export const CreateCommentReplyController: RequestHandler = async (
       parentCommentId: commentReply.parent_comment_id,
       repliedById: commentReply.replied_by_id,
       replyContent: commentReply.reply_content,
-      udpatedAt: commentReply.udpated_at,
+      updatedAt: commentReply.udpated_at,
       username: user.username,
     });
     res.status(201).json(responseObj);
@@ -66,7 +66,7 @@ export const CreateCommentReplyController: RequestHandler = async (
       return next(new BodyValidationError(error.errors));
     }
     if (error instanceof DatabaseError && error.code === "23503") {
-      return next(new ApiError(404, "comment doesnt exist"));
+      return next(new ApiError(404, "comment doesnt exist", true));
     }
     return next(new LoggerApiError(error, 500));
   }
