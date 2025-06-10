@@ -4,11 +4,16 @@ import { MAX_COMMENT_LENGTH } from "../constants/validation";
 import { ExpressUser } from "../types/globalTypes";
 import { mainDb, pigeonDb } from "../database/dbClient";
 import { Selectable, sql } from "kysely";
-import { ApiError, LoggerApiError } from "../errors/errors";
+import {
+  ApiError,
+  BodyValidationError,
+  LoggerApiError,
+} from "../errors/errors";
 import { wrapResponse } from "../utils/responseWrapper";
 import { CommentResponse } from "../types/apiResponse";
 import { Post } from "../types/db/maindb";
 import { logger } from "../logger/logger";
+import { DatabaseError } from "pg";
 
 const RetriveCommentSchema = yup.object().shape({
   postId: yup.number().required("post id is required"),
@@ -74,6 +79,12 @@ export const CreateCommentController: RequestHandler = async (
 
     res.status(201).json(responseObj);
   } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return next(new BodyValidationError(error.errors));
+    }
+    if (error instanceof DatabaseError && error.code === "23503") {
+      return next(new ApiError(404, "post doesn't exist", true));
+    }
     return next(new LoggerApiError(error, 500));
   }
 };
