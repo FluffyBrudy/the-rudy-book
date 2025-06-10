@@ -53,6 +53,6 @@ export type CommentReplyResponse = {
   parentCommentId: number;
   repliedById: string;
   replyContent: string;
-  udpatedAt?: Date;
+  updatedAt?: Date;
   username: string;
 };
