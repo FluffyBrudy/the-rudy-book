@@ -75,7 +75,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
           .execute();
       }
       const responseObj = wrapResponse<null>(null);
-      res.json(responseObj);
+      res.status(201).json(responseObj);
     });
   } catch (error) {
     if (error instanceof yup.ValidationError)

@@ -36,3 +36,23 @@ export type CommentResponse = {
   username: string;
   profilePicture: string;
 };
+
+export type ReactionResponse = {
+  imageUrl: string;
+  reactionOnId: number;
+  reactionOnType: string;
+  reactionType: string;
+  reactorTd: string;
+  username: string;
+};
+
+export type CommentReplyResponse = {
+  commentReplyId: number;
+  createdAt: Date;
+  imageUrl: string;
+  parentCommentId: number;
+  repliedById: string;
+  replyContent: string;
+  udpatedAt?: Date;
+  username: string;
+};

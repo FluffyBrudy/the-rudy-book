@@ -131,7 +131,7 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
       }
       await Promise.all(insertionPromise);
       const responseObj = wrapResponse<PostResponse>(response);
-      res.status(200).json(responseObj);
+      res.status(201).json(responseObj);
     });
   } catch (error) {
     if (error instanceof yup.ValidationError) {
