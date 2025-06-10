@@ -1,6 +1,5 @@
 export interface BaseResponse {
   success: boolean;
-  status: number;
   data: any;
 }
 
@@ -14,11 +13,26 @@ export type LoginResponse = {
   profilePicture: string;
 };
 
-export type CreatePostResponse = {
+export type PostResponse = {
   authorId: string;
   postId: number;
   content: {
     textContent?: string;
     mediaContent?: string[];
   };
+  createdAt?: Date;
+  updatedAt?: Date;
+  username: string;
+  profilePicture: string;
+};
+
+export type CommentResponse = {
+  commentId: number;
+  commentorId: string;
+  commentBody: string;
+  postId: number;
+  createdAt: Date;
+  updatedAt?: Date;
+  username: string;
+  profilePicture: string;
 };

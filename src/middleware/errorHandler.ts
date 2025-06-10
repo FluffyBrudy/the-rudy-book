@@ -10,7 +10,6 @@ type RequestHandler = (
 
 export const errorHandler = () => {
   const middleware: RequestHandler = (error, req, res, next) => {
-    console.log(error);
     res.status(error.status).json({ error: error.message, success: false });
   };
   return middleware;

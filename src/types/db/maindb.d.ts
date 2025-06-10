@@ -16,17 +16,21 @@ export interface Comment {
   comment_id: Generated<number>;
   commenter_id: string;
   created_at: Generated<Timestamp>;
+  image_url: string;
   post_id: number;
   udpated_at: Generated<Timestamp>;
+  username: string;
 }
 
 export interface CommentReply {
   comment_reply_id: Generated<number>;
   created_at: Generated<Timestamp>;
+  image_url: string;
   parent_comment_id: number;
   replied_by_id: string;
   reply_content: string;
   udpated_at: Generated<Timestamp>;
+  username: string;
 }
 
 export interface MediaContent {
@@ -37,17 +41,21 @@ export interface MediaContent {
 
 export interface Post {
   author_id: string;
-  created_at: Generated<Timestamp>;
+  created_at: Generated<Timestamp | null>;
+  image_url: string;
   post_id: Generated<number>;
   updated_at: Generated<Timestamp>;
+  username: string;
 }
 
 export interface Reaction {
+  image_url: string;
   reaction_id: Generated<number>;
   reaction_on_id: number;
   reaction_on_type: string;
   reaction_type: string;
   reactor_id: string;
+  username: string;
 }
 
 export interface TextContent {

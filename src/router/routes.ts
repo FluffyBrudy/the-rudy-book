@@ -9,4 +9,5 @@ export enum AUTH {
 export enum POST {
   ROOT = "/post",
   CREATE = "/create",
+  FETCH = "/fetch",
 }

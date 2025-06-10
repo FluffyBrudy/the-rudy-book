@@ -20,19 +20,3 @@ export const pigeonDb = new Kysely<PigeonDB>({
     }),
   }),
 });
-
-async function main() {
-  const uuid: string = randomUUID();
-
-  const userInsertion = await mainDb
-    .insertInto("post")
-    .values({
-      author_id: uuid,
-      post_id: 6,
-      created_at: new Date(),
-      updated_at: new Date(),
-    })
-    .returningAll()
-    .execute();
-  console.log(userInsertion);
-}
