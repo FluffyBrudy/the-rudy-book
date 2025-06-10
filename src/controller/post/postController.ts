@@ -11,7 +11,7 @@ import { wrapResponse } from "../../utils/responseWrapper";
 import { PostResponse } from "../../types/apiResponse";
 import { ExpressUser } from "../../types/globalTypes";
 import { validateImageURLS } from "../../utils/imageValidation";
-import { Log, Selectable, sql } from "kysely";
+import { Selectable } from "kysely";
 import { Post } from "../../types/db/maindb";
 import { logger } from "../../logger/logger";
 
