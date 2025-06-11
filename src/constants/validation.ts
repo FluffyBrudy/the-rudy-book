@@ -8,3 +8,18 @@ export const MAX_POST_CONTENT_LENGTH = 5;
 
 export const MAX_COMMENT_LENGTH = 500;
 export const MAX_COMMENT_ROWS_FETCH_LIMIT = 50;
+
+export enum EReactionTypes {
+  THUMBUP = "thumbup",
+  SAD = "sad",
+  ANGRY = "angry",
+  CARE = "care",
+  HEART = "heart",
+  FUNNY = "funny",
+}
+
+export enum EReactionOnTypes {
+  COMMENT = "comment",
+  POST = "post",
+  REPLY = "reply",
+}
