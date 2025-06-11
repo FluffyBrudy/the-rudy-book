@@ -14,6 +14,11 @@ import { validateImageURLS } from "../../utils/imageValidation";
 import { Selectable } from "kysely";
 import { Post } from "../../types/db/maindb";
 import { logger } from "../../logger/logger";
+import { join } from "path";
+import {
+  aggregatedReactions,
+  totalReactionCount,
+} from "../../database/queryFraments";
 
 const PostSchemaValidation = yup.object().shape({
   contents: yup
@@ -89,6 +94,8 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
         authorId: user.id,
         postId: postId,
         content: {},
+        totalReaction: 0,
+        reactions: [],
       };
 
       if (contents.textContent) {
@@ -182,13 +189,28 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
 
     const posts = await mainDb
       .selectFrom("post")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef("reaction.reaction_on_id", "=", "post.post_id")
+          .on("reaction.reaction_on_type", "=", "post")
+      )
       .leftJoin("text_content", "text_content.post_id", "post.post_id")
       .leftJoin("media_content", "media_content.post_id", "post.post_id")
+
       .selectAll("post")
       .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select([totalReactionCount(), aggregatedReactions()])
       .select("text_content.content")
       .where("author_id", "in", friendsId)
-      .groupBy(["post.post_id", "text_content.content"])
+      .groupBy([
+        "post.post_id",
+        "post.author_id",
+        "post.created_at",
+        "post.updated_at",
+        "post.image_url",
+        "post.username",
+        "text_content.content",
+      ])
       .orderBy("created_at", "desc")
       .execute();
 
@@ -205,6 +227,8 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
           updatedAt: post.updated_at,
           username: post.username,
           profilePicture: post.image_url,
+          totalReaction: post.totalReaction,
+          reactions: post.reactions,
         } as PostResponse)
     );
   } catch (error) {

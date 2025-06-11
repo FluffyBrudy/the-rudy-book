@@ -24,6 +24,8 @@ export type PostResponse = {
   updatedAt?: Date;
   username: string;
   profilePicture: string;
+  totalReaction: number;
+  reactions: reactionDisplayInfo;
 };
 
 export type CommentResponse = {
@@ -35,6 +37,8 @@ export type CommentResponse = {
   updatedAt?: Date;
   username: string;
   profilePicture: string;
+  totalReaction: number;
+  reactions: reactionDisplayInfo;
 };
 
 export type ReactionResponse = {
@@ -45,6 +49,11 @@ export type ReactionResponse = {
   reactorTd: string;
   username: string;
 };
+
+export type reactionDisplayInfo = Omit<
+  ReactionResponse,
+  "reactionOnId" | "reactionOnType"
+>[];
 
 export type UndoReactionResponse = {
   undo: true;

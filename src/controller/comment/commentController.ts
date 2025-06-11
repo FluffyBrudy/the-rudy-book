@@ -10,10 +10,14 @@ import {
   LoggerApiError,
 } from "../../errors/errors";
 import { wrapResponse } from "../../utils/responseWrapper";
-import { CommentResponse } from "../../types/apiResponse";
+import { CommentResponse, ReactionResponse } from "../../types/apiResponse";
 import { Post } from "../../types/db/maindb";
 import { logger } from "../../logger/logger";
 import { DatabaseError } from "pg";
+import {
+  aggregatedReactions,
+  totalReactionCount,
+} from "../../database/queryFraments";
 
 const RetriveCommentSchema = yup.object().shape({
   postId: yup.number().required("post id is required"),
@@ -72,6 +76,8 @@ export const CreateCommentController: RequestHandler = async (
       createdAt: comment.created_at,
       username: comment.username,
       profilePicture: comment.image_url,
+      totalReaction: 0,
+      reactions: [],
     });
 
     res.status(201).json(responseObj);
@@ -100,6 +106,11 @@ export const RetriveCommentsController: RequestHandler = async (
 
     const comments = await mainDb
       .selectFrom("comment")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef("reaction.reaction_on_id", "=", "comment.comment_id")
+          .on("reaction.reaction_on_type", "=", "comment")
+      )
       .select([
         "comment.comment_id",
         "comment.comment_body",
@@ -108,8 +119,19 @@ export const RetriveCommentsController: RequestHandler = async (
         "comment.post_id",
         "comment.username",
         "comment.image_url",
+        totalReactionCount(),
+        aggregatedReactions(),
       ])
       .where("comment.post_id", "=", postId)
+      .groupBy([
+        "comment.comment_id",
+        "comment.comment_body",
+        "comment.commenter_id",
+        "comment.created_at",
+        "comment.post_id",
+        "comment.username",
+        "comment.image_url",
+      ])
       .execute();
 
     const responseObjs = wrapResponse<CommentResponse[]>(
@@ -121,6 +143,8 @@ export const RetriveCommentsController: RequestHandler = async (
         createdAt: comment.created_at,
         username: comment.username,
         profilePicture: comment.image_url,
+        totalReaction: comment.totalReaction,
+        reactions: comment.reactions,
       }))
     );
     res.status(200).json(responseObjs);

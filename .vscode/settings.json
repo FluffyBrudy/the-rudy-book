@@ -1,0 +1,11 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "name": "bdconn",
+      "connectString": "postgresql://rudy:RUDYPASSWD@localhost:5432/the_rudy_club"
+    }
+  ]
+}

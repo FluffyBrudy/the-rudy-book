@@ -14,7 +14,7 @@ import {
   UndoReactionResponse,
 } from "../../types/apiResponse";
 import { DatabaseError } from "pg";
-import { Selectable, sql } from "kysely";
+import { sql } from "kysely";
 
 const UserReactionSchema = yup.object().shape({
   reactionOnId: yup.number().required("reaction target is required"),

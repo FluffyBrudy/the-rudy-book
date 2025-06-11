@@ -62,7 +62,7 @@ class LoggerApiError extends ApiError {
     msgPrefixOrMsg?: string,
     fullReplace: boolean = false
   ) {
-    super(status, msgPrefixOrMsg, fullReplace);
+    super(status, msgPrefixOrMsg ?? "error", fullReplace);
     logger.error(trueError);
   }
 }
