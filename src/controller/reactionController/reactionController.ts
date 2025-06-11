@@ -25,7 +25,7 @@ const UserReactionSchema = yup.object().shape({
     .oneOf(Object.values(EReactionTypes)),
 });
 
-export const UserReactionController: RequestHandler = async (
+export const CreateUserReactionController: RequestHandler = async (
   req,
   res,
   next
