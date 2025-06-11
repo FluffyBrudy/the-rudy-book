@@ -9,7 +9,10 @@ import {
   LoggerApiError,
 } from "../../errors/errors";
 import { wrapResponse } from "../../utils/responseWrapper";
-import { ReactionResponse } from "../../types/apiResponse";
+import {
+  ReactionResponse,
+  UndoReactionResponse,
+} from "../../types/apiResponse";
 import { DatabaseError } from "pg";
 import { Selectable, sql } from "kysely";
 
@@ -43,7 +46,6 @@ export const CreateUserReactionController: RequestHandler = async (
         .where("userId", "=", user.id)
         .executeTakeFirst()!,
     ]);
-
     if (!targeExists)
       return next(new ApiError(404, `${reactionOnType} doesnt exist`, true));
 
@@ -70,15 +72,32 @@ export const CreateUserReactionController: RequestHandler = async (
       reactorTd: reaction.reactor_id,
       username: reaction.username,
     });
-    res.json(201).json(responseObj);
+    res.status(201).json(responseObj);
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
     }
-    if (error instanceof DatabaseError && error.code == "23503") {
+    if (error instanceof DatabaseError && error.code === "23503") {
       return next(new ApiError(404, `target doesn't doesnt exist`));
     }
-    return next(new LoggerApiError(error, 500));
+    if (error instanceof DatabaseError && error.code === "23505") {
+      const deleteResponse = await mainDb
+        .deleteFrom("reaction")
+        .where("reaction.reactor_id", "=", user.id)
+        .where("reaction.reaction_on_id", "=", req.body["reactionOnId"])
+        .executeTakeFirst();
+      if (!deleteResponse) {
+        return next(new ApiError(500, "unable to remove reaction", true));
+      }
+      const response = wrapResponse<UndoReactionResponse>({
+        undo: true,
+        reactionOnId: req.body["reactionOnId"],
+        reactorId: req.body["reactionId"],
+      });
+      res.status(200).json(response);
+    } else {
+      return next(new LoggerApiError(error, 500));
+    }
   }
 };
 

@@ -46,6 +46,12 @@ export type ReactionResponse = {
   username: string;
 };
 
+export type UndoReactionResponse = {
+  undo: true;
+  reactionOnId: number;
+  reactorId: number;
+};
+
 export type CommentReplyResponse = {
   commentReplyId: number;
   createdAt: Date;
