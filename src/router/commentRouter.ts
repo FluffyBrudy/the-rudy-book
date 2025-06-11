@@ -3,7 +3,7 @@ import { POST } from "./routes";
 import {
   CreateCommentController,
   RetriveCommentsController,
-} from "../comment/commentController";
+} from "../controller/comment/commentController";
 
 const commentRouter = Router();
 

@@ -1,18 +1,18 @@
 import { RequestHandler } from "express";
 import * as yup from "yup";
-import { MAX_COMMENT_LENGTH } from "../constants/validation";
-import { ExpressUser } from "../types/globalTypes";
-import { mainDb, pigeonDb } from "../database/dbClient";
+import { MAX_COMMENT_LENGTH } from "../../constants/validation";
+import { ExpressUser } from "../../types/globalTypes";
+import { mainDb, pigeonDb } from "../../database/dbClient";
 import { Selectable, sql } from "kysely";
 import {
   ApiError,
   BodyValidationError,
   LoggerApiError,
-} from "../errors/errors";
-import { wrapResponse } from "../utils/responseWrapper";
-import { CommentResponse } from "../types/apiResponse";
-import { Post } from "../types/db/maindb";
-import { logger } from "../logger/logger";
+} from "../../errors/errors";
+import { wrapResponse } from "../../utils/responseWrapper";
+import { CommentResponse } from "../../types/apiResponse";
+import { Post } from "../../types/db/maindb";
+import { logger } from "../../logger/logger";
 import { DatabaseError } from "pg";
 
 const RetriveCommentSchema = yup.object().shape({

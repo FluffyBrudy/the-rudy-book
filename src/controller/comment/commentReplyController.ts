@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
 import * as yup from "yup";
-import { ExpressUser } from "../types/globalTypes";
+import { ExpressUser } from "../../types/globalTypes";
 import {
   ApiError,
   BodyValidationError,
   LoggerApiError,
-} from "../errors/errors";
+} from "../../errors/errors";
 import { DatabaseError } from "pg";
-import { mainDb, pigeonDb } from "../database/dbClient";
-import { wrapResponse } from "../utils/responseWrapper";
-import { CommentReplyResponse } from "../types/apiResponse";
+import { mainDb, pigeonDb } from "../../database/dbClient";
+import { wrapResponse } from "../../utils/responseWrapper";
+import { CommentReplyResponse } from "../../types/apiResponse";
 
 const CommentReplySchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),

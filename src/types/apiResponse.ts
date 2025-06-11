@@ -38,7 +38,7 @@ export type CommentResponse = {
 };
 
 export type ReactionResponse = {
-  imageUrl: string;
+  profilePicture: string;
   reactionOnId: number;
   reactionOnType: string;
   reactionType: string;

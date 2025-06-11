@@ -1,15 +1,15 @@
 import { RequestHandler } from "express";
 import * as yup from "yup";
-import { EReactionOnTypes, EReactionTypes } from "../constants/validation";
-import { ExpressUser } from "../types/globalTypes";
-import { mainDb, pigeonDb } from "../database/dbClient";
+import { EReactionOnTypes, EReactionTypes } from "../../constants/validation";
+import { ExpressUser } from "../../types/globalTypes";
+import { mainDb, pigeonDb } from "../../database/dbClient";
 import {
   ApiError,
   BodyValidationError,
   LoggerApiError,
-} from "../errors/errors";
-import { wrapResponse } from "../utils/responseWrapper";
-import { ReactionResponse } from "../types/apiResponse";
+} from "../../errors/errors";
+import { wrapResponse } from "../../utils/responseWrapper";
+import { ReactionResponse } from "../../types/apiResponse";
 import { DatabaseError } from "pg";
 import { Selectable, sql } from "kysely";
 
