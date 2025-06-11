@@ -70,4 +70,6 @@ export type CommentReplyResponse = {
   replyContent: string;
   updatedAt?: Date;
   username: string;
+  totalReaction: number;
+  reactions: reactionDisplayInfo;
 };

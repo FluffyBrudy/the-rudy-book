@@ -1,13 +1,23 @@
 import { Router } from "express";
-import { POST } from "./routes";
+import { COMMENT } from "./routes";
 import {
   CreateCommentController,
   RetriveCommentsController,
 } from "../controller/comment/commentController";
+import {
+  CreateCommentReplyController,
+  RetriveCommentRepliesController,
+} from "../controller/comment/commentReplyController";
 
 const commentRouter = Router();
+const commentReplyRouter = Router();
 
-commentRouter.post(POST.CREATE, CreateCommentController);
-commentRouter.get(POST.FETCH, RetriveCommentsController);
+commentRouter.post(COMMENT.CREATE, CreateCommentController);
+commentRouter.get(COMMENT.FETCH, RetriveCommentsController);
+
+commentReplyRouter.post(COMMENT.CREATE, CreateCommentReplyController);
+commentReplyRouter.get(COMMENT.FETCH, RetriveCommentRepliesController);
+
+commentRouter.use(COMMENT.REPLY_ROOT, commentReplyRouter);
 
 export { commentRouter };

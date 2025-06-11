@@ -14,6 +14,7 @@ export enum POST {
 
 export enum COMMENT {
   ROOT = "/comment",
+  REPLY_ROOT = "/reply",
   CREATE = "/create",
   FETCH = "/fetch",
 }

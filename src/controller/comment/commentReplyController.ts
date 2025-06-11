@@ -10,15 +10,26 @@ import { DatabaseError } from "pg";
 import { mainDb, pigeonDb } from "../../database/dbClient";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { CommentReplyResponse } from "../../types/apiResponse";
+import {
+  aggregatedReactions,
+  totalReactionCount,
+} from "../../database/queryFraments";
 
-const CommentReplySchema = yup.object().shape({
+const ReplyRetriveSchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),
-  replyContent: yup
-    .string()
-    .required("reply must not be empty")
-    .trim()
-    .min(1, "reply must not be empty"),
 });
+
+const CommentReplySchema = yup
+  .object()
+  .shape({
+    replyContent: yup
+      .string()
+      .required("reply must not be empty")
+      .trim()
+      .min(1, "reply must not be empty"),
+  })
+  .concat(ReplyRetriveSchema);
+
 export const CreateCommentReplyController: RequestHandler = async (
   req,
   res,
@@ -59,6 +70,8 @@ export const CreateCommentReplyController: RequestHandler = async (
       replyContent: commentReply.reply_content,
       updatedAt: commentReply.udpated_at,
       username: user.username,
+      totalReaction: 0,
+      reactions: [],
     });
     res.status(201).json(responseObj);
   } catch (error) {
@@ -67,6 +80,64 @@ export const CreateCommentReplyController: RequestHandler = async (
     }
     if (error instanceof DatabaseError && error.code === "23503") {
       return next(new ApiError(404, "comment doesnt exist", true));
+    }
+    return next(new LoggerApiError(error, 500));
+  }
+};
+
+export const RetriveCommentRepliesController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { parentCommentId } = ReplyRetriveSchema.validateSync(req.body);
+
+    const replies = await mainDb
+      .selectFrom("comment_reply")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef(
+            "reaction.reaction_on_id",
+            "=",
+            "comment_reply.comment_reply_id"
+          )
+          .on("reaction.reaction_on_type", "=", "reply")
+      )
+      .selectAll("comment_reply")
+      .select([totalReactionCount(), aggregatedReactions()])
+      .where("comment_reply.parent_comment_id", "=", parentCommentId)
+      .groupBy([
+        "comment_reply.comment_reply_id",
+        "comment_reply.created_at",
+        "comment_reply.udpated_at",
+        "comment_reply.image_url",
+        "comment_reply.username",
+        "comment_reply.replied_by_id",
+        "comment_reply.parent_comment_id",
+        "comment_reply.reply_content",
+      ])
+      .orderBy("created_at", "desc")
+      .execute();
+
+    const responseObjs = wrapResponse<CommentReplyResponse[]>(
+      replies.map((reply) => ({
+        commentReplyId: reply.comment_reply_id,
+        createdAt: reply.created_at,
+        profilePicture: reply.image_url ?? "",
+        parentCommentId: reply.parent_comment_id,
+        repliedById: reply.replied_by_id,
+        replyContent: reply.reply_content,
+        updatedAt: reply.udpated_at,
+        username: reply.username ?? "",
+        totalReaction: reply.totalReaction,
+        reactions: reply.reactions,
+      }))
+    );
+    res.status(200).json(responseObjs);
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return next(new BodyValidationError(error.errors));
     }
     return next(new LoggerApiError(error, 500));
   }
