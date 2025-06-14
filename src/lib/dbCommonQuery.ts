@@ -47,16 +47,21 @@ export async function createNotification(
   notificationOnId: number,
   notificationOnType: EReactionTypes
 ) {
-  const notification = await mainDb
-    .insertInto("notification")
-    .values({
-      user_id: receiverId,
-      notification_info: notificationInfo,
-      notification_on_id: notificationOnId,
-      notification_on_type: notificationOnType,
-    })
-    .executeTakeFirst();
-  return notification;
+  try {
+    const notification = await mainDb
+      .insertInto("notification")
+      .values({
+        user_id: receiverId,
+        notification_info: notificationInfo,
+        notification_on_id: notificationOnId,
+        notification_on_type: notificationOnType,
+      })
+      .executeTakeFirstOrThrow();
+    return notification;
+  } catch (error) {
+    logger.error(error);
+    return null;
+  }
 }
 
 export async function checkTargetExist(
