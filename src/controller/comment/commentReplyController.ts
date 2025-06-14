@@ -14,7 +14,10 @@ import {
   aggregatedReactions,
   totalReactionCount,
 } from "../../lib/dbQueryFraments";
-import { retrieveProfile } from "../../lib/dbCommonQuery";
+import { createNotification, retrieveProfile } from "../../lib/dbCommonQuery";
+import { sendNotification } from "../../lib/notificationSender";
+import { logger } from "../../logger/logger";
+import { EReactionOnTypes } from "../../constants/validation";
 
 const ReplyRetriveSchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),
@@ -71,6 +74,24 @@ export const CreateCommentReplyController: RequestHandler = async (
       reactions: [],
     });
     res.status(201).json(responseObj);
+
+    mainDb
+      .selectFrom("comment")
+      .where("comment_id", "=", parentCommentId)
+      .select("commenter_id")
+      .executeTakeFirstOrThrow()
+      .then((res) => {
+        const notificationMsg = `${user.username} replied to your comment`;
+        const receiverId = res.commenter_id;
+        sendNotification(
+          receiverId,
+          notificationMsg,
+          parentCommentId,
+          EReactionOnTypes.COMMENT,
+          req.headers.authorization!
+        );
+      })
+      .catch((err) => logger.error(err));
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));

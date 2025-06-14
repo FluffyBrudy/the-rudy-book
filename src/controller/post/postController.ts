@@ -1,6 +1,9 @@
 import e, { RequestHandler } from "express";
 import * as yup from "yup";
-import { MAX_POST_CONTENT_LENGTH } from "../../constants/validation";
+import {
+  EReactionOnTypes,
+  MAX_POST_CONTENT_LENGTH,
+} from "../../constants/validation";
 import { mainDb, pigeonDb } from "../../database/dbClient";
 import {
   ApiError,
@@ -19,7 +22,11 @@ import {
   aggregatedReactions,
   totalReactionCount,
 } from "../../lib/dbQueryFraments";
-import { retrieveProfile } from "../../lib/dbCommonQuery";
+import {
+  retrieveAcceptedFriendship,
+  retrieveProfile,
+} from "../../lib/dbCommonQuery";
+import { sendNotification } from "../../lib/notificationSender";
 
 const PostSchemaValidation = yup.object().shape({
   contents: yup
@@ -67,7 +74,7 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
 
     const user = req.user as ExpressUser; // i am sure because this always  happend in authentication middleware
 
-    await mainDb.transaction().execute(async (trx) => {
+    const response = await mainDb.transaction().execute(async (trx) => {
       const insertionPromise: Promise<any>[] = [];
 
       const userProfile = await retrieveProfile<"picture">(user.id);
@@ -133,9 +140,27 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
         insertionPromise.push(mediaContentPromise);
       }
       await Promise.all(insertionPromise);
-      const responseObj = wrapResponse<PostResponse>(response);
-      res.status(201).json(responseObj);
+      return response;
     });
+    const responseObj = wrapResponse<PostResponse>(response);
+    res.status(200).json(responseObj);
+
+    retrieveAcceptedFriendship(user.id)
+      .then((res) => {
+        if (res.length === 0) return;
+        const message = `${user.username} has a new post.`;
+        const notificationPromises = res.map((receiverId) =>
+          sendNotification(
+            receiverId,
+            message,
+            response.postId,
+            EReactionOnTypes.POST,
+            req.headers.authorization!
+          )
+        );
+        Promise.allSettled(notificationPromises);
+      })
+      .catch((err) => logger.error(err));
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
@@ -163,25 +188,7 @@ export const RetrivePostsController: RequestHandler = async (
 
 async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
   try {
-    const friendsId = (
-      await pigeonDb
-        .selectFrom("AcceptedFriendship")
-        .select((eb) =>
-          eb
-            .case()
-            .when("userId1", "=", userId)
-            .then(eb.ref("userId2"))
-            .else(eb.ref("userId1"))
-            .end()
-            .as("friendId")
-        )
-        .where((eb) =>
-          eb.or([eb("userId1", "=", userId), eb("userId2", "=", userId)])
-        )
-        .execute()
-    ).map(({ friendId }) => friendId);
-
-    console.log(friendsId);
+    const friendsId = await retrieveAcceptedFriendship(userId);
 
     const posts = await mainDb
       .selectFrom("post")

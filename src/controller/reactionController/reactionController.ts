@@ -15,6 +15,7 @@ import {
 } from "../../types/apiResponse";
 import { DatabaseError } from "pg";
 import { checkTargetExist } from "../../lib/dbCommonQuery";
+import { sendNotification } from "../../lib/notificationSender";
 
 const UserReactionSchema = yup.object().shape({
   reactionOnId: yup.number().required("reaction target is required"),
@@ -38,7 +39,7 @@ export const CreateUserReactionController: RequestHandler = async (
     const { reactionOnId, reactionOnType, reactionType } =
       UserReactionSchema.validateSync(req.body);
 
-    const [targeExists, image] = await Promise.all([
+    const [targetAuthor, image] = await Promise.all([
       checkTargetExist(reactionOnType, reactionOnId),
       pigeonDb
         .selectFrom("Profile")
@@ -46,7 +47,7 @@ export const CreateUserReactionController: RequestHandler = async (
         .where("userId", "=", user.id)
         .executeTakeFirst()!,
     ]);
-    if (!targeExists)
+    if (!targetAuthor)
       return next(new ApiError(404, `${reactionOnType} doesnt exist`, true));
 
     const reaction = await mainDb
@@ -73,6 +74,16 @@ export const CreateUserReactionController: RequestHandler = async (
       username: reaction.username,
     });
     res.status(201).json(responseObj);
+
+    sendNotification(
+      targetAuthor,
+      `${user.username} reacted on your ${reactionOnType.toLocaleLowerCase()}`,
+      reactionOnId,
+      reactionOnType,
+      req.headers.authorization!
+    )
+      .then()
+      .catch();
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));

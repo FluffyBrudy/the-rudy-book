@@ -4,7 +4,7 @@ import { logger } from "../logger/logger";
 import { mainDb, pigeonDb } from "../database/dbClient";
 import { Profile } from "../types/db/pigeondb";
 import { TableFieldSelection } from "../types/globalTypes";
-import { EReactionOnTypes, EReactionTypes } from "../constants/validation";
+import { EReactionOnTypes } from "../constants/validation";
 
 export async function checkPostExist(postId: Selectable<Post>["post_id"]) {
   try {
@@ -45,23 +45,39 @@ export async function createNotification(
   receiverId: string,
   notificationInfo: string,
   notificationOnId: number,
-  notificationOnType: EReactionTypes
+  notificationOnType: EReactionOnTypes
 ) {
-  try {
-    const notification = await mainDb
-      .insertInto("notification")
-      .values({
-        user_id: receiverId,
-        notification_info: notificationInfo,
-        notification_on_id: notificationOnId,
-        notification_on_type: notificationOnType,
-      })
-      .executeTakeFirstOrThrow();
-    return notification;
-  } catch (error) {
-    logger.error(error);
-    return null;
-  }
+  const notification = await mainDb
+    .insertInto("notification")
+    .values({
+      user_id: receiverId,
+      notification_info: notificationInfo,
+      notification_on_id: notificationOnId,
+      notification_on_type: notificationOnType,
+    })
+    .returningAll()
+    .executeTakeFirstOrThrow();
+  return notification;
+}
+
+export async function retrieveAcceptedFriendship(userId: string) {
+  return (
+    await pigeonDb
+      .selectFrom("AcceptedFriendship")
+      .select((eb) =>
+        eb
+          .case()
+          .when("userId1", "=", userId)
+          .then(eb.ref("userId2"))
+          .else(eb.ref("userId1"))
+          .end()
+          .as("friendId")
+      )
+      .where((eb) =>
+        eb.or([eb("userId1", "=", userId), eb("userId2", "=", userId)])
+      )
+      .execute()
+  ).map(({ friendId }) => friendId);
 }
 
 export async function checkTargetExist(
@@ -91,6 +107,6 @@ export async function checkTargetExist(
         .executeTakeFirstOrThrow();
       return replyExists.replied_by_id;
     default:
-      throw new Error("Invalid target type");
+      return null;
   }
 }

@@ -1,7 +1,10 @@
 import { RequestHandler } from "express";
 import { DatabaseError } from "pg";
 import * as yup from "yup";
-import { MAX_COMMENT_LENGTH } from "../../constants/validation";
+import {
+  EReactionOnTypes,
+  MAX_COMMENT_LENGTH,
+} from "../../constants/validation";
 import { mainDb } from "../../database/dbClient";
 import {
   ApiError,
@@ -16,6 +19,8 @@ import {
 import { CommentResponse } from "../../types/apiResponse";
 import { ExpressUser } from "../../types/globalTypes";
 import { wrapResponse } from "../../utils/responseWrapper";
+import { logger } from "../../logger/logger";
+import { sendNotification } from "../../lib/notificationSender";
 
 const RetriveCommentSchema = yup.object().shape({
   postId: yup.number().required("post id is required"),
@@ -74,6 +79,24 @@ export const CreateCommentController: RequestHandler = async (
     });
 
     res.status(201).json(responseObj);
+
+    mainDb
+      .selectFrom("post")
+      .select("author_id")
+      .where("post_id", "=", postId)
+      .executeTakeFirst()
+      .then((res) => {
+        if (!res) return;
+        const receiverId = res.author_id;
+        sendNotification(
+          receiverId,
+          `${username} commented on your post`,
+          postId,
+          EReactionOnTypes.POST,
+          req.headers.authorization!
+        );
+      })
+      .catch((err) => logger.error(err));
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
