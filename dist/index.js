@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.app = void 0;
 const express_1 = __importDefault(require("express"));
 const express_session_1 = __importDefault(require("express-session"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
@@ -25,6 +26,7 @@ const errorHandler_1 = require("./middleware/errorHandler");
 const routes_1 = require("./router/routes");
 require("dotenv").config();
 const app = (0, express_1.default)();
+exports.app = app;
 app.use((0, cors_1.default)({ origin: "*", credentials: true })); // todo: filter origin
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
@@ -62,6 +64,8 @@ passport_1.default.use(new passport_jwt_1.Strategy({
 app.use(routes_1.ROOT, mainRouter_1.mainRouter);
 app.use((0, errorHandler_1.errorHandler)());
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`listening at port: http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV === "dev") {
+    app.listen(PORT, () => {
+        console.log(`listening at port: http://localhost:${PORT}`);
+    });
+}
