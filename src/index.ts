@@ -75,4 +75,4 @@ if (process.env.NODE_ENV === "dev") {
   });
 }
 
-export { app };
+export default app;
