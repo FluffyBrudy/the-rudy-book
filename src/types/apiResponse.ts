@@ -1,6 +1,6 @@
 export interface BaseResponse {
   success: boolean;
-  data: any;
+  data?: any;
 }
 
 export type RegisterResponse = null;
