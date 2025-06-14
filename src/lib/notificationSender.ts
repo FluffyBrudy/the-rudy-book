@@ -28,7 +28,7 @@ export async function sendNotification(
 
     const response = await axios.post(
       process.env.SOCKET_SERVER!,
-      { sockData },
+      { ...sockData },
       {
         headers: {
           "Content-Type": "application/json",

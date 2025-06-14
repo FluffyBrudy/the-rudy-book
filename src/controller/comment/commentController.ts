@@ -24,16 +24,15 @@ import { sendNotification } from "../../lib/notificationSender";
 
 const RetriveCommentSchema = yup.object().shape({
   postId: yup.number().required("post id is required"),
-  datetime: yup.date().default(() => new Date()),
 });
 const CreateCommentSchema = yup
   .object()
   .shape({
     commentBody: yup
       .string()
-      .required("comment must have at least one content")
+      .required("comment content can not be empty")
       .trim()
-      .min(1, "comment must not be empty")
+      .min(1, "comment content can not be empty")
       .max(MAX_COMMENT_LENGTH),
   })
   .concat(RetriveCommentSchema);
@@ -44,9 +43,7 @@ export const CreateCommentController: RequestHandler = async (
   next
 ) => {
   try {
-    const { commentBody, postId } = await CreateCommentSchema.validate(
-      req.body
-    );
+    const { commentBody, postId } = CreateCommentSchema.validateSync(req.body);
     const { username, id } = req.user as ExpressUser;
     const userId = id;
 
@@ -79,7 +76,6 @@ export const CreateCommentController: RequestHandler = async (
     });
 
     res.status(201).json(responseObj);
-
     mainDb
       .selectFrom("post")
       .select("author_id")

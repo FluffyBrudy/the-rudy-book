@@ -175,7 +175,6 @@ export const RetrivePostsController: RequestHandler = async (
   next
 ) => {
   const user = req.user as ExpressUser;
-  console.log(user.id);
   try {
     const posts = await retriveFriendsPost(user.id);
     if (!posts) return next(new ApiError(500, "unable to retrive post", true));
