@@ -39,6 +39,15 @@ export interface MediaContent {
   post_id: number;
 }
 
+export interface Notification {
+  id: Generated<number>;
+  user_id: string;
+  notification_info: string;
+  notification_on_id: number;
+  notification_on_type: string;
+  created_at: Generated<Timestamp | null>;
+}
+
 export interface Post {
   author_id: string;
   created_at: Generated<Timestamp | null>;
@@ -67,6 +76,7 @@ export interface DB {
   comment: Comment;
   comment_reply: CommentReply;
   media_content: MediaContent;
+  notification: Notification;
   post: Post;
   reaction: Reaction;
   text_content: TextContent;
