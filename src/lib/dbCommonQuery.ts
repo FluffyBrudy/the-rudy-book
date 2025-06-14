@@ -4,7 +4,7 @@ import { logger } from "../logger/logger";
 import { mainDb, pigeonDb } from "../database/dbClient";
 import { Profile } from "../types/db/pigeondb";
 import { TableFieldSelection } from "../types/globalTypes";
-import { EReactionOnTypes } from "../constants/validation";
+import { EReactionOnTypes, EReactionTypes } from "../constants/validation";
 
 export async function checkPostExist(postId: Selectable<Post>["post_id"]) {
   try {
@@ -39,6 +39,24 @@ export async function retrieveProfile<T extends keyof Profile>(
     .executeTakeFirst();
 
   return profile;
+}
+
+export async function createNotification(
+  receiverId: string,
+  notificationInfo: string,
+  notificationOnId: number,
+  notificationOnType: EReactionTypes
+) {
+  const notification = await mainDb
+    .insertInto("notification")
+    .values({
+      user_id: receiverId,
+      notification_info: notificationInfo,
+      notification_on_id: notificationOnId,
+      notification_on_type: notificationOnType,
+    })
+    .executeTakeFirst();
+  return notification;
 }
 
 export async function checkTargetExist(
