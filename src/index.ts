@@ -68,6 +68,11 @@ app.use(ROOT, mainRouter);
 app.use(errorHandler());
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`listening at port: http://localhost:${PORT}`);
-});
+
+if (process.env.NODE_ENV === "dev") {
+  app.listen(PORT, () => {
+    console.log(`listening at port: http://localhost:${PORT}`);
+  });
+}
+
+export { app };
