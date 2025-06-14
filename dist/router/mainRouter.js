@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mainRouter = void 0;
+const express_1 = require("express");
+const authVerification_1 = require("../middleware/authVerification");
+const routes_1 = require("./routes");
+const authRouter_1 = require("./authRouter");
+const postRouter_1 = require("./postRouter");
+const commentRouter_1 = require("./commentRouter");
+const reactionRouter_1 = require("./reactionRouter");
+const mainRouter = (0, express_1.Router)();
+exports.mainRouter = mainRouter;
+mainRouter.use(routes_1.AUTH.ROOT, authRouter_1.authRouter);
+mainRouter.use((0, authVerification_1.verifyAuth)());
+mainRouter.use(routes_1.POST.ROOT, postRouter_1.postRouter);
+mainRouter.use(routes_1.COMMENT.ROOT, commentRouter_1.commentRouter);
+mainRouter.use(routes_1.REACTION.ROOT, reactionRouter_1.reactionRouter);

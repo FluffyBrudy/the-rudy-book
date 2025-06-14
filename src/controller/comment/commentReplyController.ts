@@ -1,23 +1,23 @@
 import { RequestHandler } from "express";
+import { DatabaseError } from "pg";
 import * as yup from "yup";
-import { ExpressUser } from "../../types/globalTypes";
+import { EReactionOnTypes } from "../../constants/validation";
+import { mainDb } from "../../database/dbClient";
 import {
   ApiError,
   BodyValidationError,
   LoggerApiError,
 } from "../../errors/errors";
-import { DatabaseError } from "pg";
-import { mainDb, pigeonDb } from "../../database/dbClient";
-import { wrapResponse } from "../../utils/responseWrapper";
-import { CommentReplyResponse } from "../../types/apiResponse";
+import { retrieveProfile } from "../../lib/dbCommonQuery";
 import {
   aggregatedReactions,
   totalReactionCount,
 } from "../../lib/dbQueryFraments";
-import { createNotification, retrieveProfile } from "../../lib/dbCommonQuery";
 import { sendNotification } from "../../lib/notificationSender";
 import { logger } from "../../logger/logger";
-import { EReactionOnTypes } from "../../constants/validation";
+import { CommentReplyResponse } from "../../types/apiResponse";
+import { ExpressUser } from "../../types/globalTypes";
+import { wrapResponse } from "../../utils/responseWrapper";
 
 const ReplyRetriveSchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),

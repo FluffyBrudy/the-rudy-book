@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BAD_REQUEST_ERROR = exports.INTERNAL_SERVER_ERROR = exports.CONFLICT_ERROR = exports.NOT_FOUND_ERROR = exports.FORBIDDEN_ERROR = exports.UNAUTHORIZED_ERROR = exports.UNPROCESSABLE_ENTITY_ERROR = void 0;
+exports.UNPROCESSABLE_ENTITY_ERROR = "unprocessable entity error";
+exports.UNAUTHORIZED_ERROR = "unauthorized access";
+exports.FORBIDDEN_ERROR = "resource forbidden";
+exports.NOT_FOUND_ERROR = "not found";
+exports.CONFLICT_ERROR = "conflict";
+exports.INTERNAL_SERVER_ERROR = "internal server error";
+exports.BAD_REQUEST_ERROR = "bad request error";

@@ -1,32 +1,31 @@
-import e, { RequestHandler } from "express";
+import { RequestHandler } from "express";
+import { Selectable } from "kysely";
 import * as yup from "yup";
 import {
   EReactionOnTypes,
   MAX_POST_CONTENT_LENGTH,
 } from "../../constants/validation";
-import { mainDb, pigeonDb } from "../../database/dbClient";
+import { mainDb } from "../../database/dbClient";
 import {
   ApiError,
   BodyValidationError,
   LoggerApiError,
 } from "../../errors/errors";
-import { wrapResponse } from "../../utils/responseWrapper";
-import { PostResponse } from "../../types/apiResponse";
-import { ExpressUser } from "../../types/globalTypes";
-import { validateImageURLS } from "../../utils/imageValidation";
-import { Selectable } from "kysely";
-import { Post } from "../../types/db/maindb";
-import { logger } from "../../logger/logger";
-import { join } from "path";
-import {
-  aggregatedReactions,
-  totalReactionCount,
-} from "../../lib/dbQueryFraments";
 import {
   retrieveAcceptedFriendship,
   retrieveProfile,
 } from "../../lib/dbCommonQuery";
+import {
+  aggregatedReactions,
+  totalReactionCount,
+} from "../../lib/dbQueryFraments";
 import { sendNotification } from "../../lib/notificationSender";
+import { logger } from "../../logger/logger";
+import { PostResponse } from "../../types/apiResponse";
+import { Post } from "../../types/db/maindb";
+import { ExpressUser } from "../../types/globalTypes";
+import { validateImageURLS } from "../../utils/imageValidation";
+import { wrapResponse } from "../../utils/responseWrapper";
 
 const PostSchemaValidation = yup.object().shape({
   contents: yup
