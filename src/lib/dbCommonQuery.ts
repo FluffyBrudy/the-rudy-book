@@ -4,7 +4,7 @@ import { logger } from "../logger/logger";
 import { mainDb, pigeonDb } from "../database/dbClient";
 import { Profile } from "../types/db/pigeondb";
 import { TableFieldSelection } from "../types/globalTypes";
-import { EActivityTypes, EReactionOnTypes } from "../constants/validation";
+import { EReactionOnTypes } from "../constants/validation";
 
 export async function checkPostExist(postId: Selectable<Post>["post_id"]) {
   try {
@@ -42,7 +42,7 @@ export async function retrieveProfile<T extends keyof Profile>(
 }
 
 export async function checkTargetExist(
-  reactionOnType: EReactionOnTypes | EActivityTypes,
+  reactionOnType: EReactionOnTypes,
   targetId: number
 ) {
   switch (reactionOnType) {
@@ -67,18 +67,6 @@ export async function checkTargetExist(
         .where("comment_reply.comment_reply_id", "=", targetId)
         .executeTakeFirstOrThrow();
       return replyExists.replied_by_id;
-    case EActivityTypes.FRIEND_REQUEST:
-      return null;
-    case EActivityTypes.FRIEND_REQUEST_ACCEPT:
-      return null;
-    case EActivityTypes.REACTION:
-      const reactionExist = await mainDb
-        .selectFrom("reaction")
-        .select("reaction.reactor_id")
-        .where("reaction.reaction_on_id", "=", targetId)
-        .where("reaction.reaction_on_type", "=", reactionOnType)
-        .executeTakeFirstOrThrow();
-      return reactionExist.reactor_id;
     default:
       throw new Error("Invalid target type");
   }
