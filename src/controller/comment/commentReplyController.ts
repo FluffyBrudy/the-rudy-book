@@ -13,7 +13,8 @@ import { CommentReplyResponse } from "../../types/apiResponse";
 import {
   aggregatedReactions,
   totalReactionCount,
-} from "../../database/queryFraments";
+} from "../../lib/dbQueryFraments";
+import { retrieveProfile } from "../../lib/dbCommonQuery";
 
 const ReplyRetriveSchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),
@@ -41,11 +42,7 @@ export const CreateCommentReplyController: RequestHandler = async (
       req.body
     );
 
-    const { picture } = (await pigeonDb
-      .selectFrom("Profile")
-      .select("Profile.picture")
-      .where("userId", "=", user.id)
-      .executeTakeFirst())!; // because this wouldnt be possible if user wouldnt exist
+    const profile = await retrieveProfile<"picture">(user.id);
     const commentReply = await mainDb
       .insertInto("comment_reply")
       .values({
@@ -53,7 +50,7 @@ export const CreateCommentReplyController: RequestHandler = async (
         replied_by_id: user.id,
         reply_content: replyContent,
         username: user.username,
-        image_url: picture,
+        image_url: profile?.picture ?? "",
       })
       .returningAll()
       .executeTakeFirst();

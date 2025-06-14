@@ -14,7 +14,7 @@ import {
   UndoReactionResponse,
 } from "../../types/apiResponse";
 import { DatabaseError } from "pg";
-import { sql } from "kysely";
+import { checkTargetExist } from "../../lib/dbCommonQuery";
 
 const UserReactionSchema = yup.object().shape({
   reactionOnId: yup.number().required("reaction target is required"),
@@ -100,34 +100,3 @@ export const CreateUserReactionController: RequestHandler = async (
     }
   }
 };
-
-async function checkTargetExist(
-  reactionOnType: EReactionOnTypes,
-  targetId: number
-) {
-  switch (reactionOnType) {
-    case EReactionOnTypes.COMMENT:
-      const commentExists = await mainDb
-        .selectFrom("comment")
-        .select(sql`1`.as("dummy"))
-        .where("comment.comment_id", "=", targetId)
-        .executeTakeFirst();
-      return !!commentExists;
-    case EReactionOnTypes.POST:
-      const postExists = await mainDb
-        .selectFrom("post")
-        .select(sql`1`.as("dummy"))
-        .where("post.post_id", "=", targetId)
-        .executeTakeFirst();
-      return !!postExists;
-    case EReactionOnTypes.REPLY:
-      const replyExists = await mainDb
-        .selectFrom("comment_reply")
-        .select(sql`1`.as("dummy"))
-        .where("comment_reply.comment_reply_id", "=", targetId)
-        .executeTakeFirst();
-      return !!replyExists;
-    default:
-      return false;
-  }
-}

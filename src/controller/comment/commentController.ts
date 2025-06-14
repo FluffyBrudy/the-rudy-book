@@ -1,23 +1,21 @@
 import { RequestHandler } from "express";
+import { DatabaseError } from "pg";
 import * as yup from "yup";
 import { MAX_COMMENT_LENGTH } from "../../constants/validation";
-import { ExpressUser } from "../../types/globalTypes";
-import { mainDb, pigeonDb } from "../../database/dbClient";
-import { Selectable, sql } from "kysely";
+import { mainDb } from "../../database/dbClient";
 import {
   ApiError,
   BodyValidationError,
   LoggerApiError,
 } from "../../errors/errors";
-import { wrapResponse } from "../../utils/responseWrapper";
-import { CommentResponse, ReactionResponse } from "../../types/apiResponse";
-import { Post } from "../../types/db/maindb";
-import { logger } from "../../logger/logger";
-import { DatabaseError } from "pg";
+import { checkPostExist, retrieveProfile } from "../../lib/dbCommonQuery";
 import {
   aggregatedReactions,
   totalReactionCount,
-} from "../../database/queryFraments";
+} from "../../lib/dbQueryFraments";
+import { CommentResponse } from "../../types/apiResponse";
+import { ExpressUser } from "../../types/globalTypes";
+import { wrapResponse } from "../../utils/responseWrapper";
 
 const RetriveCommentSchema = yup.object().shape({
   postId: yup.number().required("post id is required"),
@@ -47,12 +45,7 @@ export const CreateCommentController: RequestHandler = async (
     const { username, id } = req.user as ExpressUser;
     const userId = id;
 
-    const userRes = await pigeonDb
-      .selectFrom("Profile")
-      .select(["Profile.picture"])
-      .where("userId", "=", userId)
-      .limit(1)
-      .executeTakeFirst();
+    const userRes = await retrieveProfile<"picture">(userId);
 
     const comment = await mainDb
       .insertInto("comment")
@@ -155,17 +148,3 @@ export const RetriveCommentsController: RequestHandler = async (
     return next(new LoggerApiError(error, 500));
   }
 };
-
-async function checkPostExist(postId: Selectable<Post>["post_id"]) {
-  try {
-    const postExist = await mainDb
-      .selectFrom("post")
-      .select(sql`1`.as("dummy"))
-      .where("post_id", "=", postId)
-      .execute();
-    return !!postExist;
-  } catch (error) {
-    logger.error(error);
-    return false;
-  }
-}

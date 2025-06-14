@@ -18,7 +18,8 @@ import { join } from "path";
 import {
   aggregatedReactions,
   totalReactionCount,
-} from "../../database/queryFraments";
+} from "../../lib/dbQueryFraments";
+import { retrieveProfile } from "../../lib/dbCommonQuery";
 
 const PostSchemaValidation = yup.object().shape({
   contents: yup
@@ -69,12 +70,7 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
     await mainDb.transaction().execute(async (trx) => {
       const insertionPromise: Promise<any>[] = [];
 
-      const userProfile = await pigeonDb
-        .selectFrom("Profile")
-        .select(["Profile.picture"])
-        .where("userId", "=", user.id)
-        .limit(1)
-        .executeTakeFirst();
+      const userProfile = await retrieveProfile<"picture">(user.id);
 
       const postReponse = await trx
         .insertInto("post")
