@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.logger = void 0;
 const pino_1 = __importStar(require("pino"));
 exports.logger = (0, pino_1.default)((0, pino_1.transport)({
-    target: "pino-pretty",
+    target: process.env.NODE_ENV === "dev" ? "pino-pretty" : "pino/file",
     options: {
         destination: "./logs",
         colorize: false,
