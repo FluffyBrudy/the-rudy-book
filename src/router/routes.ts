@@ -4,6 +4,7 @@ export enum AUTH {
   ROOT = "/auth",
   REGISTER = "/register",
   LOGIN = "/login",
+  AUTHORIZE = "/authorize",
 }
 
 export enum POST {
