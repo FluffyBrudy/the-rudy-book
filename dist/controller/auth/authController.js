@@ -65,6 +65,7 @@ const registerSchema = loginSchema.concat(yup.object().shape({
 const RegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, email, password } = registerSchema.validateSync(req.body, { abortEarly: false });
+        let responseObjData;
         yield dbClient_1.pigeonDb.transaction().execute((trx) => __awaiter(void 0, void 0, void 0, function* () {
             const imageUploadPromise = (0, avatar_1.uploadDefaultProfileImage)(username);
             const user = yield trx
@@ -72,7 +73,7 @@ const RegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 .values({
                 username,
                 email,
-                password: (0, bcryptjs_1.hashSync)(password, (0, bcryptjs_1.genSaltSync)(10)), // why am i even going for 10 round of generating cipher when no is gonna use my app😭😹
+                password: (0, bcryptjs_1.hashSync)(password, (0, bcryptjs_1.genSaltSync)(10)),
             })
                 .returning("User.id")
                 .executeTakeFirstOrThrow();
@@ -90,9 +91,9 @@ const RegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 })
                     .execute();
             }
-            const responseObj = (0, responseWrapper_1.wrapResponse)(null);
-            res.status(201).json(responseObj);
+            responseObjData = (0, responseWrapper_1.wrapResponse)(null);
         }));
+        res.json(responseObjData);
     }
     catch (error) {
         if (error instanceof yup.ValidationError)

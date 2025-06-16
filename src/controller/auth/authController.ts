@@ -48,6 +48,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
       req.body,
       { abortEarly: false }
     );
+    let responseObjData: unknown;
     await pigeonDb.transaction().execute(async (trx) => {
       const imageUploadPromise = uploadDefaultProfileImage(username);
 
@@ -56,7 +57,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
         .values({
           username,
           email,
-          password: hashSync(password, genSaltSync(10)), // why am i even going for 10 round of generating cipher when no is gonna use my app😭😹
+          password: hashSync(password, genSaltSync(10)),
         })
         .returning("User.id")
         .executeTakeFirstOrThrow();
@@ -74,9 +75,9 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
           })
           .execute();
       }
-      const responseObj = wrapResponse<null>(null);
-      res.status(201).json(responseObj);
+      responseObjData = wrapResponse<null>(null);
     });
+    res.json(responseObjData);
   } catch (error) {
     if (error instanceof yup.ValidationError)
       return next(new BodyValidationError(error.errors));
