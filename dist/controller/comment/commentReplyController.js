@@ -43,6 +43,7 @@ const dbQueryFraments_1 = require("../../lib/dbQueryFraments");
 const notificationSender_1 = require("../../lib/notificationSender");
 const logger_1 = require("../../logger/logger");
 const responseWrapper_1 = require("../../utils/responseWrapper");
+const date_fns_1 = require("date-fns");
 const ReplyRetriveSchema = yup.object().shape({
     parentCommentId: yup.number().required("comment id is required"),
 });
@@ -77,12 +78,13 @@ const CreateCommentReplyController = (req, res, next) => __awaiter(void 0, void 
             return next(new errors_1.ApiError(500, "unable to create reply", true));
         const responseObj = (0, responseWrapper_1.wrapResponse)({
             commentReplyId: commentReply.comment_reply_id,
-            createdAt: commentReply.created_at,
+            createdAt: (0, date_fns_1.formatDistanceToNow)(commentReply.created_at, {
+                addSuffix: true,
+            }),
             profilePicture: commentReply.image_url,
             parentCommentId: commentReply.parent_comment_id,
             repliedById: commentReply.replied_by_id,
             replyContent: commentReply.reply_content,
-            updatedAt: commentReply.udpated_at,
             username: user.username,
             totalReaction: 0,
             reactions: [],
@@ -138,7 +140,7 @@ const RetriveCommentRepliesController = (req, res, next) => __awaiter(void 0, vo
             var _a, _b;
             return ({
                 commentReplyId: reply.comment_reply_id,
-                createdAt: reply.created_at,
+                createdAt: (0, date_fns_1.formatDistanceToNow)(reply.created_at, { addSuffix: true }),
                 profilePicture: (_a = reply.image_url) !== null && _a !== void 0 ? _a : "",
                 parentCommentId: reply.parent_comment_id,
                 repliedById: reply.replied_by_id,

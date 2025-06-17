@@ -43,6 +43,7 @@ const dbQueryFraments_1 = require("../../lib/dbQueryFraments");
 const responseWrapper_1 = require("../../utils/responseWrapper");
 const logger_1 = require("../../logger/logger");
 const notificationSender_1 = require("../../lib/notificationSender");
+const date_fns_1 = require("date-fns");
 const RetriveCommentSchema = yup.object().shape({
     postId: yup.number().required("post id is required"),
 });
@@ -82,7 +83,7 @@ const CreateCommentController = (req, res, next) => __awaiter(void 0, void 0, vo
             commentorId: userId,
             commentBody: comment.comment_body,
             postId: postId,
-            createdAt: comment.created_at,
+            createdAt: (0, date_fns_1.formatDistanceToNow)(comment.created_at, { addSuffix: true }),
             username: comment.username,
             profilePicture: comment.image_url,
             totalReaction: 0,
@@ -151,7 +152,7 @@ const RetriveCommentsController = (req, res, next) => __awaiter(void 0, void 0, 
             commentorId: userId,
             commentBody: comment.comment_body,
             postId: postId,
-            createdAt: comment.created_at,
+            createdAt: (0, date_fns_1.formatDistanceToNow)(comment.created_at, { addSuffix: true }),
             username: comment.username,
             profilePicture: comment.image_url,
             totalReaction: comment.totalReaction,

@@ -18,6 +18,7 @@ import { logger } from "../../logger/logger";
 import { CommentReplyResponse } from "../../types/apiResponse";
 import { ExpressUser } from "../../types/globalTypes";
 import { wrapResponse } from "../../utils/responseWrapper";
+import { formatDistanceToNow } from "date-fns";
 
 const ReplyRetriveSchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),
@@ -63,12 +64,13 @@ export const CreateCommentReplyController: RequestHandler = async (
 
     const responseObj = wrapResponse<CommentReplyResponse>({
       commentReplyId: commentReply.comment_reply_id,
-      createdAt: commentReply.created_at,
+      createdAt: formatDistanceToNow(commentReply.created_at, {
+        addSuffix: true,
+      }),
       profilePicture: commentReply.image_url,
       parentCommentId: commentReply.parent_comment_id,
       repliedById: commentReply.replied_by_id,
       replyContent: commentReply.reply_content,
-      updatedAt: commentReply.udpated_at,
       username: user.username,
       totalReaction: 0,
       reactions: [],
@@ -141,7 +143,7 @@ export const RetriveCommentRepliesController: RequestHandler = async (
     const responseObjs = wrapResponse<CommentReplyResponse[]>(
       replies.map((reply) => ({
         commentReplyId: reply.comment_reply_id,
-        createdAt: reply.created_at,
+        createdAt: formatDistanceToNow(reply.created_at, { addSuffix: true }),
         profilePicture: reply.image_url ?? "",
         parentCommentId: reply.parent_comment_id,
         repliedById: reply.replied_by_id,

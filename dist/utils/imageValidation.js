@@ -19,8 +19,7 @@ function validateImageURL(imageUrl) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
-            const response = yield axios_1.default.get(imageUrl, {
-                responseType: "arraybuffer",
+            const response = yield axios_1.default.head(imageUrl, {
                 timeout: 5000,
                 maxContentLength: 1024 * 1024 * 5,
             });

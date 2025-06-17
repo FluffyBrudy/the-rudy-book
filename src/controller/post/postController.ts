@@ -26,6 +26,7 @@ import { Post } from "../../types/db/maindb";
 import { ExpressUser } from "../../types/globalTypes";
 import { validateImageURLS } from "../../utils/imageValidation";
 import { wrapResponse } from "../../utils/responseWrapper";
+import { formatDistanceToNow } from "date-fns";
 
 const PostSchemaValidation = yup.object().shape({
   contents: yup
@@ -98,6 +99,9 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
         postId: postId,
         content: {},
         totalReaction: 0,
+        createdAt: formatDistanceToNow(postReponse.created_at!, {
+          addSuffix: true,
+        }),
         reactions: [],
       };
 
@@ -225,8 +229,7 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
             textContent: post.content,
             mediaContent: post.mediaUrls,
           },
-          createdAt: post.created_at,
-          updatedAt: post.updated_at,
+          createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
           username: post.username,
           profilePicture: post.image_url,
           totalReaction: post.totalReaction,

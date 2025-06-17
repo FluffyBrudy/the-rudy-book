@@ -21,6 +21,7 @@ import { ExpressUser } from "../../types/globalTypes";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { logger } from "../../logger/logger";
 import { sendNotification } from "../../lib/notificationSender";
+import { formatDistanceToNow } from "date-fns";
 
 const RetriveCommentSchema = yup.object().shape({
   postId: yup.number().required("post id is required"),
@@ -68,7 +69,7 @@ export const CreateCommentController: RequestHandler = async (
       commentorId: userId,
       commentBody: comment.comment_body,
       postId: postId,
-      createdAt: comment.created_at,
+      createdAt: formatDistanceToNow(comment.created_at, { addSuffix: true }),
       username: comment.username,
       profilePicture: comment.image_url,
       totalReaction: 0,
@@ -152,7 +153,7 @@ export const RetriveCommentsController: RequestHandler = async (
         commentorId: userId,
         commentBody: comment.comment_body,
         postId: postId,
-        createdAt: comment.created_at,
+        createdAt: formatDistanceToNow(comment.created_at, { addSuffix: true }),
         username: comment.username,
         profilePicture: comment.image_url,
         totalReaction: comment.totalReaction,

@@ -43,6 +43,7 @@ const notificationSender_1 = require("../../lib/notificationSender");
 const logger_1 = require("../../logger/logger");
 const imageValidation_1 = require("../../utils/imageValidation");
 const responseWrapper_1 = require("../../utils/responseWrapper");
+const date_fns_1 = require("date-fns");
 const PostSchemaValidation = yup.object().shape({
     contents: yup
         .object()
@@ -69,6 +70,8 @@ const PostSchemaValidation = yup.object().shape({
         return true;
     })
         .test("InvalidMedia", "url must exist and be of media type (image)", (value) => __awaiter(void 0, void 0, void 0, function* () {
+        if (!value.mediaContent)
+            return true;
         const mediaUrls = value.mediaContent;
         const areUrlsValid = yield (0, imageValidation_1.validateImageURLS)(mediaUrls);
         return areUrlsValid;
@@ -99,6 +102,9 @@ const CreatePostController = (req, res, next) => __awaiter(void 0, void 0, void 
                 postId: postId,
                 content: {},
                 totalReaction: 0,
+                createdAt: (0, date_fns_1.formatDistanceToNow)(postReponse.created_at, {
+                    addSuffix: true,
+                }),
                 reactions: [],
             };
             if (contents.textContent) {
@@ -206,8 +212,7 @@ function retriveFriendsPost(userId) {
                     textContent: post.content,
                     mediaContent: post.mediaUrls,
                 },
-                createdAt: post.created_at,
-                updatedAt: post.updated_at,
+                createdAt: (0, date_fns_1.formatDistanceToNow)(post.created_at, { addSuffix: true }),
                 username: post.username,
                 profilePicture: post.image_url,
                 totalReaction: post.totalReaction,
