@@ -13,10 +13,10 @@ const commentRouter = Router();
 const commentReplyRouter = Router();
 
 commentRouter.post(COMMENT.CREATE, CreateCommentController);
-commentRouter.get(COMMENT.FETCH, RetriveCommentsController);
+commentRouter.post(COMMENT.FETCH, RetriveCommentsController);
 
 commentReplyRouter.post(COMMENT.CREATE, CreateCommentReplyController);
-commentReplyRouter.get(COMMENT.FETCH, RetriveCommentRepliesController);
+commentReplyRouter.post(COMMENT.FETCH, RetriveCommentRepliesController);
 
 commentRouter.use(COMMENT.REPLY_ROOT, commentReplyRouter);
 
