@@ -60,6 +60,7 @@ const PostSchemaValidation = yup.object().shape({
       "InvalidMedia",
       "url must exist and be of media type (image)",
       async (value) => {
+        if (!value.mediaContent) return true;
         const mediaUrls = value.mediaContent!;
         const areUrlsValid = await validateImageURLS(mediaUrls);
         return areUrlsValid;

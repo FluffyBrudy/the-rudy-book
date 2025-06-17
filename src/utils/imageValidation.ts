@@ -3,8 +3,7 @@ import { logger } from "../logger/logger";
 
 async function validateImageURL(imageUrl: string) {
   try {
-    const response = await axios.get(imageUrl, {
-      responseType: "arraybuffer",
+    const response = await axios.head(imageUrl, {
       timeout: 5000,
       maxContentLength: 1024 * 1024 * 5,
     });
