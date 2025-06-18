@@ -57,31 +57,33 @@ export const CreateUserReactionController: RequestHandler = async (
           ${reactionOnType},
           ${reactionOnId},
           ${reactionType},
-          ${image},
+          ${image?.picture},
           ${user.username}
         )
       `.execute(mainDb);
 
     const { toggle_reaction } = queryResponse.rows[0];
-    const { action, reaction } = toggle_reaction; // will use action if needed not now
-
+    const { action, reaction } = toggle_reaction;
+    console.log(action);
     if (reaction === null) {
       const responseObj = wrapResponse<UndoReactionResponse>({
         undo: true,
         reactionOnId: reactionOnId,
         reactorId: user.id,
+        action: action,
       });
+
       res.status(200).json(responseObj);
       return;
     }
-
     const responseObj = wrapResponse<ReactionResponse>({
-      profilePicture: JSON.parse(reaction.image_url).picture,
+      profilePicture: image!.picture,
       reactionOnId: reaction.reaction_on_id,
       reactionOnType: reaction.reaction_on_type,
       reactionType: reaction.reaction_type,
       reactorTd: reaction.reactor_id,
       username: reaction.username,
+      action: action,
     });
     res.status(201).json(responseObj);
 

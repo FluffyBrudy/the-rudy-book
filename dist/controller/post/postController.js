@@ -172,6 +172,7 @@ const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, voi
         if (!posts)
             return next(new errors_1.ApiError(500, "unable to retrive post", true));
         const responseObj = (0, responseWrapper_1.wrapResponse)(posts);
+        console.log(posts.map((i) => i.profilePicture));
         res.status(200).json(responseObj);
     }
     catch (error) {

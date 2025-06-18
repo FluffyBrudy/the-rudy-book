@@ -48,6 +48,7 @@ export type ReactionResponse = {
   reactionType: string;
   reactorTd: string;
   username: string;
+  action: "inserted" | "removed" | "toggled";
 };
 
 export type reactionDisplayInfo = Omit<
@@ -59,6 +60,7 @@ export type UndoReactionResponse = {
   undo: true;
   reactionOnId: number;
   reactorId: string;
+  action: "inserted" | "removed" | "toggled";
 };
 
 export type CommentReplyResponse = {

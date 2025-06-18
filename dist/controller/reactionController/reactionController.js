@@ -73,29 +73,31 @@ const CreateUserReactionController = (req, res, next) => __awaiter(void 0, void 
           ${reactionOnType},
           ${reactionOnId},
           ${reactionType},
-          ${image},
+          ${image === null || image === void 0 ? void 0 : image.picture},
           ${user.username}
         )
       `.execute(dbClient_1.mainDb);
         const { toggle_reaction } = queryResponse.rows[0];
         const { action, reaction } = toggle_reaction;
-        console.log(reaction);
+        console.log(action);
         if (reaction === null) {
             const responseObj = (0, responseWrapper_1.wrapResponse)({
                 undo: true,
                 reactionOnId: reactionOnId,
                 reactorId: user.id,
+                action: action,
             });
             res.status(200).json(responseObj);
             return;
         }
         const responseObj = (0, responseWrapper_1.wrapResponse)({
-            profilePicture: JSON.parse(reaction.image_url).picture,
+            profilePicture: image.picture,
             reactionOnId: reaction.reaction_on_id,
             reactionOnType: reaction.reaction_on_type,
             reactionType: reaction.reaction_type,
             reactorTd: reaction.reactor_id,
             username: reaction.username,
+            action: action,
         });
         res.status(201).json(responseObj);
         (0, notificationSender_1.sendNotification)(targetAuthor, `${user.username} reacted on your ${reactionOnType.toLocaleLowerCase()}`, reactionOnId, reactionOnType, req.headers.authorization)
