@@ -3,7 +3,8 @@ import { Selectable } from "kysely";
 import * as yup from "yup";
 import {
   EReactionOnTypes,
-  MAX_POST_CONTENT_LENGTH,
+  MAX_POST_MEDIA_CONTENT_LENGTH,
+  MAX_POST_TEXT_LENGTH,
 } from "../../constants/validation";
 import { mainDb } from "../../database/dbClient";
 import {
@@ -38,13 +39,14 @@ const PostSchemaValidation = yup.object().shape({
         .trim()
         .min(1)
         .max(
-          MAX_POST_CONTENT_LENGTH,
-          `post cannot exceed ${MAX_POST_CONTENT_LENGTH} characters`
+          MAX_POST_TEXT_LENGTH,
+          `post cannot exceed ${MAX_POST_TEXT_LENGTH} characters`
         ),
       mediaContent: yup
         .array()
         .optional()
         .min(1)
+        .max(MAX_POST_MEDIA_CONTENT_LENGTH, "Maximum media can only be upto 5")
         .of(
           yup.string().trim().url().required("each element must be valid url")
         ),

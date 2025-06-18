@@ -4,7 +4,7 @@ export const MIN_PASSWORD_LENGTH = 8;
 export const MAX_PASSWORD_LENGTH = 16;
 
 export const MAX_POST_TEXT_LENGTH = 1500;
-export const MAX_POST_CONTENT_LENGTH = 5;
+export const MAX_POST_MEDIA_CONTENT_LENGTH = 5;
 
 export const MAX_COMMENT_LENGTH = 500;
 export const MAX_COMMENT_ROWS_FETCH_LIMIT = 50;
