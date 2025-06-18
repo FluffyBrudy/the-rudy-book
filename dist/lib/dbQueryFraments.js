@@ -11,7 +11,7 @@ const aggregatedReactions = () => (0, kysely_1.sql) `
           'reactorId', reaction.reactor_id,
           'username', reaction.username,
           'profilePicture', reaction.image_url,
-          'reaction_type', reaction.reaction_type
+          'reactionType', reaction.reaction_type
         )
       ) FILTER (WHERE reaction.reactor_id IS NOT NULL),
       '[]'::json
