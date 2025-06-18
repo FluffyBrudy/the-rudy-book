@@ -58,7 +58,7 @@ export type reactionDisplayInfo = Omit<
 export type UndoReactionResponse = {
   undo: true;
   reactionOnId: number;
-  reactorId: number;
+  reactorId: string;
 };
 
 export type CommentReplyResponse = {
