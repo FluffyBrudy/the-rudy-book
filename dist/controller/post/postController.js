@@ -53,11 +53,12 @@ const PostSchemaValidation = yup.object().shape({
             .optional()
             .trim()
             .min(1)
-            .max(validation_1.MAX_POST_CONTENT_LENGTH, `post cannot exceed ${validation_1.MAX_POST_CONTENT_LENGTH} characters`),
+            .max(validation_1.MAX_POST_TEXT_LENGTH, `post cannot exceed ${validation_1.MAX_POST_TEXT_LENGTH} characters`),
         mediaContent: yup
             .array()
             .optional()
             .min(1)
+            .max(validation_1.MAX_POST_MEDIA_CONTENT_LENGTH, "Maximum media can only be upto 5")
             .of(yup.string().trim().url().required("each element must be valid url")),
     })
         .required("post content is required")

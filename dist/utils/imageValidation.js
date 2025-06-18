@@ -15,13 +15,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateImageURLS = void 0;
 const axios_1 = __importDefault(require("axios"));
 const logger_1 = require("../logger/logger");
+const MAX_FILE_SIZE = 1024 * 1024 * 5;
 function validateImageURL(imageUrl) {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
             const response = yield axios_1.default.head(imageUrl, {
                 timeout: 5000,
-                maxContentLength: 1024 * 1024 * 5,
             });
             if (response.status !== 200)
                 return false;
@@ -29,10 +29,15 @@ function validateImageURL(imageUrl) {
                  http1.0 spec says case insensative but autocompletion give Capitaalized, so  workaround
              */
             const contentType = (_a = response.headers["Content-Type"]) !== null && _a !== void 0 ? _a : response.headers["content-type"];
+            const contentLengthHeader = response.headers["Content-Length"] || response.headers["content-lenght"];
+            const contentLength = contentLengthHeader
+                ? parseInt(contentLengthHeader)
+                : 0;
+            const isSizeAcceptable = Number.isFinite(contentLength) && contentLength <= MAX_FILE_SIZE;
             const isContentImage = contentType &&
                 typeof contentType === "string" &&
                 contentType.startsWith("image/");
-            return isContentImage;
+            return isContentImage && isSizeAcceptable;
         }
         catch (error) {
             logger_1.logger.error({ ImageValidation: error });
