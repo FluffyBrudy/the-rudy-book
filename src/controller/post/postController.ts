@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { Selectable } from "kysely";
+import { Selectable, sql } from "kysely";
 import * as yup from "yup";
 import {
   EReactionOnTypes,
@@ -181,7 +181,8 @@ export const RetrivePostsController: RequestHandler = async (
 ) => {
   const user = req.user as ExpressUser;
   try {
-    const posts = await retriveFriendsPost(user.id);
+    const randomPosts = await retriveFriendsPost(user.id);
+    const posts = randomPosts ? randomPosts : await retriveFriendsPost(user.id);
     if (!posts) return next(new ApiError(500, "unable to retrive post", true));
     const responseObj = wrapResponse<PostResponse[]>(posts);
     res.status(200).json(responseObj);
@@ -208,7 +209,7 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
       .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
       .select([totalReactionCount(), aggregatedReactions()])
       .select("text_content.content")
-      .where("author_id", "in", friendsId)
+      .where("author_id", "in", [...friendsId, userId])
       .groupBy([
         "post.post_id",
         "post.author_id",
@@ -219,6 +220,63 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
         "text_content.content",
       ])
       .orderBy("created_at", "desc")
+      .limit(50)
+      .execute();
+
+    return posts.map(
+      (post) =>
+        ({
+          authorId: post.author_id,
+          postId: post.post_id,
+          content: {
+            textContent: post.content,
+            mediaContent: post.mediaUrls,
+          },
+          createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
+          username: post.username,
+          profilePicture: post.image_url,
+          totalReaction: post.totalReaction,
+          reactions: post.reactions,
+        } as PostResponse)
+    );
+  } catch (error) {
+    logger.error(error);
+    return null;
+  }
+}
+
+async function retrieveRandomPosts(
+  limit: number = 10,
+  excludePostIds: number[] = []
+) {
+  try {
+    let query = mainDb
+      .selectFrom("post")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef("reaction.reaction_on_id", "=", "post.post_id")
+          .on("reaction.reaction_on_type", "=", "post")
+      )
+      .leftJoin("text_content", "text_content.post_id", "post.post_id")
+      .leftJoin("media_content", "media_content.post_id", "post.post_id")
+      .selectAll("post")
+      .where("post.post_id", "not in", excludePostIds)
+      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select([totalReactionCount(), aggregatedReactions()])
+      .select("text_content.content")
+      .groupBy([
+        "post.post_id",
+        "post.author_id",
+        "post.created_at",
+        "post.updated_at",
+        "post.image_url",
+        "post.username",
+        "text_content.content",
+      ]);
+
+    const posts = await query
+      .orderBy(sql`RANDOM()`)
+      .limit(limit)
       .execute();
 
     return posts.map(
