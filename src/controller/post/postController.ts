@@ -184,7 +184,6 @@ export const RetrivePostsController: RequestHandler = async (
     const posts = await retriveFriendsPost(user.id);
     if (!posts) return next(new ApiError(500, "unable to retrive post", true));
     const responseObj = wrapResponse<PostResponse[]>(posts);
-    console.log(posts.map((i) => i.profilePicture));
     res.status(200).json(responseObj);
   } catch (error) {
     return next(new LoggerApiError(error, 500));

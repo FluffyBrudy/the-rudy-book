@@ -25,3 +25,7 @@ export enum REACTION {
   CREATE = "/create",
   FETCH = "/fetch",
 }
+
+export enum CRON {
+  ROOT = "/cron",
+}
