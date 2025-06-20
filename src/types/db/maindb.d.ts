@@ -40,12 +40,13 @@ export interface MediaContent {
 }
 
 export interface Notification {
+  created_at: Generated<Timestamp | null>;
   id: Generated<number>;
-  user_id: string;
+  is_read: Generated<boolean>;
   notification_info: string;
   notification_on_id: number;
   notification_on_type: string;
-  created_at: Generated<Timestamp | null>;
+  user_id: string;
 }
 
 export interface Post {
@@ -72,6 +73,12 @@ export interface TextContent {
   text_content_id: Generated<number>;
 }
 
+export interface TopPosts {
+  computed_at: Generated<Timestamp | null>;
+  id: Generated<number>;
+  post_id: number;
+}
+
 export interface DB {
   comment: Comment;
   comment_reply: CommentReply;
@@ -80,4 +87,5 @@ export interface DB {
   post: Post;
   reaction: Reaction;
   text_content: TextContent;
+  top_posts: TopPosts;
 }

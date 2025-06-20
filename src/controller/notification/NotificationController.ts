@@ -38,7 +38,7 @@ export const RetriveNotificationController: RequestHandler = async (
       .execute();
     const responseObj = wrapResponse<NotificationsResponse[]>(
       notifications.map((notification) => ({
-        notificationId: notification.id,
+        isRead: notification.is_read,
         userId: notification.user_id,
         notificationOnId: notification.notification_on_id,
         notificationOnType: notification.notification_on_type,
@@ -46,6 +46,7 @@ export const RetriveNotificationController: RequestHandler = async (
         createdAt: formatDistanceToNow(notification.created_at!, {
           addSuffix: true,
         }),
+        notificationId: notification.id,
       }))
     );
     res.status(200).json(responseObj);

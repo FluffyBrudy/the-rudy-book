@@ -83,4 +83,5 @@ export type NotificationsResponse = {
   notificationOnId: number;
   notificationOnType: string;
   createdAt: Date | string;
+  isRead: boolean;
 };
