@@ -168,7 +168,8 @@ exports.CreatePostController = CreatePostController;
 const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     try {
-        const posts = yield retriveFriendsPost(user.id);
+        const randomPosts = yield retriveFriendsPost(user.id);
+        const posts = randomPosts ? randomPosts : yield retriveFriendsPost(user.id);
         if (!posts)
             return next(new errors_1.ApiError(500, "unable to retrive post", true));
         const responseObj = (0, responseWrapper_1.wrapResponse)(posts);
@@ -194,7 +195,7 @@ function retriveFriendsPost(userId) {
                 .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
                 .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
                 .select("text_content.content")
-                .where("author_id", "in", friendsId)
+                .where("author_id", "in", [...friendsId, userId])
                 .groupBy([
                 "post.post_id",
                 "post.author_id",
@@ -205,6 +206,7 @@ function retriveFriendsPost(userId) {
                 "text_content.content",
             ])
                 .orderBy("created_at", "desc")
+                .limit(50)
                 .execute();
             return posts.map((post) => ({
                 authorId: post.author_id,

@@ -118,7 +118,7 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             return next(new errors_1.ApiError(404, "user"));
         const comaprePassword = (0, bcryptjs_1.compareSync)(password, user.password);
         if (!comaprePassword)
-            return next(new errors_1.ApiError(500, "invalid password", true));
+            return next(new errors_1.ApiError(401, "invalid password", true));
         const accessToken = (0, jsonwebtoken_1.sign)({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: "15m" });
         const refreshToken = (0, jsonwebtoken_1.sign)({ id: user.id, username: user.username }, process.env.JWT_REFRESH_SECRET, { expiresIn: "1d" });
         res.cookie("refreshToken", refreshToken, {
