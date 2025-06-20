@@ -27,6 +27,11 @@ export enum REACTION {
   FETCH = "/fetch",
 }
 
+export enum NOTIFICATION {
+  ROOT = "/notification",
+  FETCH = "/fetch",
+}
+
 export enum CRON {
   ROOT = "/cron",
 }
