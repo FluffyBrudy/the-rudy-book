@@ -104,7 +104,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
 
     const comaprePassword = compareSync(password, user.password);
     if (!comaprePassword)
-      return next(new ApiError(500, "invalid password", true));
+      return next(new ApiError(401, "invalid password", true));
     const accessToken = JWTSign(
       { id: user.id, username: user.username },
       process.env.JWT_SECRET!,

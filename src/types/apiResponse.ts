@@ -75,3 +75,12 @@ export type CommentReplyResponse = {
   totalReaction: number;
   reactions: reactionDisplayInfo;
 };
+
+export type NotificationsResponse = {
+  notificationId: number;
+  userId: string;
+  notificationInfo: string;
+  notificationOnId: number;
+  notificationOnType: string;
+  createdAt: Date | string;
+};
