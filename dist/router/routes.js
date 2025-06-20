@@ -7,6 +7,7 @@ var AUTH;
     AUTH["ROOT"] = "/auth";
     AUTH["REGISTER"] = "/register";
     AUTH["LOGIN"] = "/login";
+    AUTH["REFRESH_TOKEN"] = "/refresh-token";
     AUTH["AUTHORIZE"] = "/authorize";
 })(AUTH || (exports.AUTH = AUTH = {}));
 var POST;

@@ -120,14 +120,14 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
         if (!comaprePassword)
             return next(new errors_1.ApiError(401, "invalid password", true));
         const accessToken = (0, jsonwebtoken_1.sign)({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: "15m" });
-        const refreshToken = (0, jsonwebtoken_1.sign)({ id: user.id, username: user.username }, process.env.JWT_REFRESH_SECRET, { expiresIn: "1d" });
+        const refreshToken = (0, jsonwebtoken_1.sign)({ id: user.id, username: user.username }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
             signed: true,
             sameSite: "none",
             partitioned: true,
-            maxAge: 24 * 60 * 60 * 1000,
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         const responseObj = (0, responseWrapper_1.wrapResponse)({
             accessToken,

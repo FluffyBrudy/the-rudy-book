@@ -10,4 +10,5 @@ const authRouter = (0, express_1.Router)();
 exports.authRouter = authRouter;
 authRouter.post(routes_1.AUTH.REGISTER, authController_1.RegisterController);
 authRouter.post(routes_1.AUTH.LOGIN, authController_1.LoginController);
+authRouter.post(routes_1.AUTH.REFRESH_TOKEN, tokenController_1.TokenRefreshController);
 authRouter.get(routes_1.AUTH.AUTHORIZE, (0, authVerification_1.verifyAuth)(), tokenController_1.TokenAuthorizationController);
