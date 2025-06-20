@@ -30,6 +30,7 @@ export enum REACTION {
 export enum NOTIFICATION {
   ROOT = "/notification",
   FETCH = "/fetch",
+  DELETE = "/delete",
 }
 
 export enum CRON {

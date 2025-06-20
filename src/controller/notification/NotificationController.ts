@@ -54,7 +54,11 @@ export const RetriveNotificationController: RequestHandler = async (
   }
 };
 
-export const deleteNotifications: RequestHandler = async (req, res, next) => {
+export const DeleteNotificationController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { notificationIds } = NotificationDeleteSchema.validateSync(req.body);
     const response = await mainDb
