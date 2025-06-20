@@ -31,6 +31,7 @@ export enum NOTIFICATION {
   ROOT = "/notification",
   FETCH = "/fetch",
   DELETE = "/delete",
+  TOGGLE_READ = "/toggle-read",
 }
 
 export enum CRON {

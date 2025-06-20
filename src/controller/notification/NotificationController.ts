@@ -5,7 +5,13 @@ import { mainDb } from "../../database/dbClient";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { NotificationsResponse } from "../../types/apiResponse";
 import { formatDistanceToNow } from "date-fns";
-import { BodyValidationError, LoggerApiError } from "../../errors/errors";
+import {
+  ApiError,
+  BodyValidationError,
+  LoggerApiError,
+} from "../../errors/errors";
+import { DatabaseError } from "pg";
+import { sql } from "kysely";
 
 const NotificationDeleteSchema = yup.object().shape({
   notificationIds: yup
@@ -27,7 +33,7 @@ export const RetriveNotificationController: RequestHandler = async (
 ) => {
   try {
     const user = req.user as ExpressUser;
-    const notificationPage = parseInt(req.params["page"]) + 1 || 0;
+    const notificationPage = parseInt((req.query.page as string) ?? 0) + 1 || 0;
     const notifications = await mainDb
       .selectFrom("notification")
       .selectAll()
@@ -70,6 +76,45 @@ export const DeleteNotificationController: RequestHandler = async (
   } catch (error) {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
+    }
+    return next(new LoggerApiError(error, 500));
+  }
+};
+
+export const ToggleNotificationReadStatus: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const { notificationId } = yup
+      .object()
+      .shape({
+        notificationId: yup
+          .number()
+          .required("notification identifier is required"),
+      })
+      .validateSync(req.body);
+    const notification = await mainDb
+      .updateTable("notification")
+      .where("notification.id", "=", notificationId)
+      .set({
+        is_read: sql<boolean>`NOT is_read`,
+      })
+      .returning("is_read")
+      .executeTakeFirst();
+
+    res.json(
+      wrapResponse<{ isRead: boolean }>({
+        isRead: notification?.is_read ?? false,
+      })
+    );
+  } catch (error) {
+    if (error instanceof yup.ValidationError) {
+      return next(new BodyValidationError(error.errors));
+    }
+    if (error instanceof DatabaseError && error.code === "23503") {
+      return next(new ApiError(404, "notification not found", true));
     }
     return next(new LoggerApiError(error, 500));
   }
