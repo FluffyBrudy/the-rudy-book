@@ -208,19 +208,22 @@ function retriveFriendsPost(userId) {
                 .orderBy("created_at", "desc")
                 .limit(50)
                 .execute();
-            return posts.map((post) => ({
-                authorId: post.author_id,
-                postId: post.post_id,
-                content: {
-                    textContent: post.content,
-                    mediaContent: post.mediaUrls,
-                },
-                createdAt: (0, date_fns_1.formatDistanceToNow)(post.created_at, { addSuffix: true }),
-                username: post.username,
-                profilePicture: post.image_url,
-                totalReaction: post.totalReaction,
-                reactions: post.reactions,
-            }));
+            return posts.map((post) => {
+                var _a;
+                return ({
+                    authorId: post.author_id,
+                    postId: post.post_id,
+                    content: {
+                        textContent: post.content,
+                        mediaContent: ((_a = post.mediaUrls) === null || _a === void 0 ? void 0 : _a.every(Boolean)) ? post.mediaUrls : [],
+                    },
+                    createdAt: (0, date_fns_1.formatDistanceToNow)(post.created_at, { addSuffix: true }),
+                    username: post.username,
+                    profilePicture: post.image_url,
+                    totalReaction: post.totalReaction,
+                    reactions: post.reactions,
+                });
+            });
         }
         catch (error) {
             logger_1.logger.error(error);

@@ -8,3 +8,4 @@ const notificationRouter = (0, express_1.Router)();
 exports.notificationRouter = notificationRouter;
 notificationRouter.get(routes_1.NOTIFICATION.FETCH, NotificationController_1.RetriveNotificationController);
 notificationRouter.post(routes_1.NOTIFICATION.DELETE, NotificationController_1.DeleteNotificationController);
+notificationRouter.post(routes_1.NOTIFICATION.TOGGLE_READ, NotificationController_1.ToggleNotificationReadStatus);

@@ -34,6 +34,7 @@ var NOTIFICATION;
     NOTIFICATION["ROOT"] = "/notification";
     NOTIFICATION["FETCH"] = "/fetch";
     NOTIFICATION["DELETE"] = "/delete";
+    NOTIFICATION["TOGGLE_READ"] = "/toggle-read";
 })(NOTIFICATION || (exports.NOTIFICATION = NOTIFICATION = {}));
 var CRON;
 (function (CRON) {
