@@ -230,7 +230,7 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
           postId: post.post_id,
           content: {
             textContent: post.content,
-            mediaContent: post.mediaUrls,
+            mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
           },
           createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
           username: post.username,

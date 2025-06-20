@@ -33,7 +33,7 @@ export const RetriveNotificationController: RequestHandler = async (
 ) => {
   try {
     const user = req.user as ExpressUser;
-    const notificationPage = parseInt((req.query.page as string) ?? 0) + 1 || 0;
+    const notificationPage = parseInt(req.query.page as string) || 0;
     const notifications = await mainDb
       .selectFrom("notification")
       .selectAll()
