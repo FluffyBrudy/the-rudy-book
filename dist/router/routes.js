@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CRON = exports.REACTION = exports.COMMENT = exports.POST = exports.AUTH = exports.ROOT = void 0;
+exports.CRON = exports.NOTIFICATION = exports.REACTION = exports.COMMENT = exports.POST = exports.AUTH = exports.ROOT = void 0;
 exports.ROOT = "/api";
 var AUTH;
 (function (AUTH) {
@@ -29,6 +29,11 @@ var REACTION;
     REACTION["CREATE"] = "/create";
     REACTION["FETCH"] = "/fetch";
 })(REACTION || (exports.REACTION = REACTION = {}));
+var NOTIFICATION;
+(function (NOTIFICATION) {
+    NOTIFICATION["ROOT"] = "/notification";
+    NOTIFICATION["FETCH"] = "/fetch";
+})(NOTIFICATION || (exports.NOTIFICATION = NOTIFICATION = {}));
 var CRON;
 (function (CRON) {
     CRON["ROOT"] = "/cron";
