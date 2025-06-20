@@ -33,6 +33,7 @@ var NOTIFICATION;
 (function (NOTIFICATION) {
     NOTIFICATION["ROOT"] = "/notification";
     NOTIFICATION["FETCH"] = "/fetch";
+    NOTIFICATION["DELETE"] = "/delete";
 })(NOTIFICATION || (exports.NOTIFICATION = NOTIFICATION = {}));
 var CRON;
 (function (CRON) {

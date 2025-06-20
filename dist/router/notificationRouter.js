@@ -7,3 +7,4 @@ const NotificationController_1 = require("../controller/notification/Notificatio
 const notificationRouter = (0, express_1.Router)();
 exports.notificationRouter = notificationRouter;
 notificationRouter.get(routes_1.NOTIFICATION.FETCH, NotificationController_1.RetriveNotificationController);
+notificationRouter.post(routes_1.NOTIFICATION.DELETE, NotificationController_1.DeleteNotificationController);

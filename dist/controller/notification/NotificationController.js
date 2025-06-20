@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteNotifications = exports.RetriveNotificationController = void 0;
+exports.DeleteNotificationController = exports.RetriveNotificationController = void 0;
 const yup = __importStar(require("yup"));
 const dbClient_1 = require("../../database/dbClient");
 const responseWrapper_1 = require("../../utils/responseWrapper");
@@ -77,7 +77,7 @@ const RetriveNotificationController = (req, res, next) => __awaiter(void 0, void
     }
 });
 exports.RetriveNotificationController = RetriveNotificationController;
-const deleteNotifications = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const DeleteNotificationController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { notificationIds } = NotificationDeleteSchema.validateSync(req.body);
         const response = yield dbClient_1.mainDb
@@ -93,4 +93,4 @@ const deleteNotifications = (req, res, next) => __awaiter(void 0, void 0, void 0
         return next(new errors_1.LoggerApiError(error, 500));
     }
 });
-exports.deleteNotifications = deleteNotifications;
+exports.DeleteNotificationController = DeleteNotificationController;
