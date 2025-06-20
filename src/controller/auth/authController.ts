@@ -113,7 +113,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
     const refreshToken = JWTSign(
       { id: user.id, username: user.username },
       process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: "1d" }
+      { expiresIn: "7d" }
     );
 
     res.cookie("refreshToken", refreshToken, {
@@ -122,7 +122,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       signed: true,
       sameSite: "none",
       partitioned: true,
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     const responseObj = wrapResponse<LoginResponse>({
