@@ -28,6 +28,7 @@ import { ExpressUser } from "../../types/globalTypes";
 import { validateImageURLS } from "../../utils/imageValidation";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { formatDistanceToNow } from "date-fns";
+import { shuffle } from "../../utils/randomUtils";
 
 const PostSchemaValidation = yup.object().shape({
   contents: yup
@@ -181,8 +182,21 @@ export const RetrivePostsController: RequestHandler = async (
 ) => {
   const user = req.user as ExpressUser;
   try {
-    const randomPosts = await retriveFriendsPost(user.id);
-    const posts = randomPosts ? randomPosts : await retriveFriendsPost(user.id);
+    const friendsId = await retrieveAcceptedFriendship(user.id);
+    const postFetchPromises = await Promise.all([
+      retriveFriendsPost(user.id, friendsId),
+      retriveRandomPostByReactionEngagement(user.id, friendsId),
+    ]);
+    const filteredPost = postFetchPromises.filter(
+      Boolean
+    ) as unknown as PostResponse[];
+    const posts = filteredPost.reduce(
+      (accm, post) => accm.concat(post),
+      [] as PostResponse[]
+    );
+
+    shuffle(filteredPost);
+
     if (!posts) return next(new ApiError(500, "unable to retrive post", true));
     const responseObj = wrapResponse<PostResponse[]>(posts);
     res.status(200).json(responseObj);
@@ -191,10 +205,11 @@ export const RetrivePostsController: RequestHandler = async (
   }
 };
 
-async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
+async function retriveFriendsPost(
+  userId: Selectable<Post>["author_id"],
+  friendsIds: string[]
+) {
   try {
-    const friendsId = await retrieveAcceptedFriendship(userId);
-
     const posts = await mainDb
       .selectFrom("post")
       .leftJoin("reaction", (join) =>
@@ -209,7 +224,7 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
       .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
       .select([totalReactionCount(), aggregatedReactions()])
       .select("text_content.content")
-      .where("author_id", "in", [...friendsId, userId])
+      .where("author_id", "in", [...friendsIds, userId])
       .groupBy([
         "post.post_id",
         "post.author_id",
@@ -223,6 +238,64 @@ async function retriveFriendsPost(userId: Selectable<Post>["author_id"]) {
       .limit(50)
       .execute();
 
+    return posts.map(
+      (post) =>
+        ({
+          authorId: post.author_id,
+          postId: post.post_id,
+          content: {
+            textContent: post.content,
+            mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
+          },
+          createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
+          username: post.username,
+          profilePicture: post.image_url,
+          totalReaction: post.totalReaction,
+          reactions: post.reactions,
+        } as PostResponse)
+    );
+  } catch (error) {
+    logger.error(error);
+    return null;
+  }
+}
+
+/**
+ *
+ * @param {string} userId to omit users
+ */
+async function retriveRandomPostByReactionEngagement(
+  userId: string,
+  omitableIds: Array<string>
+) {
+  try {
+    const posts = await mainDb
+      .selectFrom("post")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef("reaction.reaction_on_id", "=", "post.post_id")
+          .on("reaction.reaction_on_type", "=", "post")
+      )
+      .leftJoin("text_content", "text_content.post_id", "post.post_id")
+      .leftJoin("media_content", "media_content.post_id", "post.post_id")
+
+      .selectAll("post")
+      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select([totalReactionCount(), aggregatedReactions()])
+      .select("text_content.content")
+      .where("author_id", "not in", [...omitableIds, userId])
+      .groupBy([
+        "post.post_id",
+        "post.author_id",
+        "post.created_at",
+        "post.updated_at",
+        "post.image_url",
+        "post.username",
+        "text_content.content",
+      ])
+      .orderBy("totalReaction", "desc")
+      .limit(50)
+      .execute();
     return posts.map(
       (post) =>
         ({
