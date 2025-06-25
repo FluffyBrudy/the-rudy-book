@@ -12,6 +12,7 @@ export enum POST {
   ROOT = "/post",
   CREATE = "/create",
   FETCH = "/fetch",
+  FETCH_BY_ID = "/fetch/:postId",
 }
 
 export enum COMMENT {

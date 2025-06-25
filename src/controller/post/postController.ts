@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { Selectable, sql } from "kysely";
+import { OperandValueExpression, Selectable, sql } from "kysely";
 import * as yup from "yup";
 import {
   EReactionOnTypes,
@@ -23,7 +23,7 @@ import {
 import { sendNotification } from "../../lib/notificationSender";
 import { logger } from "../../logger/logger";
 import { PostResponse } from "../../types/apiResponse";
-import { Post } from "../../types/db/maindb";
+import { DB, Post } from "../../types/db/maindb";
 import { ExpressUser } from "../../types/globalTypes";
 import { validateImageURLS } from "../../utils/imageValidation";
 import { wrapResponse } from "../../utils/responseWrapper";
@@ -171,6 +171,59 @@ export const CreatePostController: RequestHandler = async (req, res, next) => {
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
     }
+    return next(new LoggerApiError(error, 500));
+  }
+};
+
+export const RetrivePostController: RequestHandler = async (req, res, next) => {
+  const user = req.user as ExpressUser;
+  const postId = req.params?.postId as unknown as
+    | OperandValueExpression<DB, "post", "post.post_id">
+    | undefined;
+  if (!postId) return next(new ApiError(422, "invalid postId", true));
+
+  try {
+    const post = await mainDb
+      .selectFrom("post")
+      .leftJoin("media_content", "media_content.post_id", "post.post_id")
+      .leftJoin("text_content", "text_content.post_id", "post.post_id")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef("reaction.reaction_on_id", "=", "post.post_id")
+          .on("reaction.reaction_on_type", "=", "post")
+      )
+      .selectAll("post")
+      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select("text_content.content")
+      .select([totalReactionCount(), aggregatedReactions()])
+      .where("post.post_id", "=", postId)
+      .groupBy([
+        "post.post_id",
+        "post.author_id",
+        "post.username",
+        "post.image_url",
+        "post.created_at",
+        "text_content.content",
+      ])
+      .limit(1)
+      .executeTakeFirstOrThrow();
+    const response = wrapResponse<PostResponse>({
+      authorId: post.author_id,
+      postId: post.post_id,
+      content: {
+        textContent: post.content ?? undefined,
+        mediaContent: post.mediaUrls?.every(Boolean)
+          ? (post.mediaUrls as string[])
+          : [],
+      },
+      createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
+      username: post.username,
+      profilePicture: post.image_url,
+      totalReaction: post.totalReaction,
+      reactions: post.reactions,
+    });
+    res.json(response);
+  } catch (error) {
     return next(new LoggerApiError(error, 500));
   }
 };
