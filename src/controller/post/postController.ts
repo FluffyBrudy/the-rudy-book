@@ -180,8 +180,8 @@ export const RetrivePostController: RequestHandler = async (req, res, next) => {
   const postId = req.params?.postId as unknown as
     | OperandValueExpression<DB, "post", "post.post_id">
     | undefined;
-  if (!postId) return next(new ApiError(422, "invalid postId", true));
 
+  if (!postId) return next(new ApiError(422, "invalid postId", true));
   try {
     const post = await mainDb
       .selectFrom("post")
@@ -206,7 +206,9 @@ export const RetrivePostController: RequestHandler = async (req, res, next) => {
         "text_content.content",
       ])
       .limit(1)
-      .executeTakeFirstOrThrow();
+      .executeTakeFirst();
+    if (!post) return next(new ApiError(400, "post not found", true));
+
     const response = wrapResponse<PostResponse>({
       authorId: post.author_id,
       postId: post.post_id,
