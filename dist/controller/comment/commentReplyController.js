@@ -98,7 +98,7 @@ const CreateCommentReplyController = (req, res, next) => __awaiter(void 0, void 
             .then((res) => {
             const notificationMsg = `${user.username} replied to your comment`;
             const receiverId = res.commenter_id;
-            (0, notificationSender_1.sendNotification)(receiverId, notificationMsg, parentCommentId, validation_1.EReactionOnTypes.COMMENT, req.headers.authorization);
+            (0, notificationSender_1.sendNotification)(receiverId, notificationMsg, parentCommentId, validation_1.EReactionOnTypes.REPLY, req.headers.authorization);
         })
             .catch((err) => logger_1.logger.error(err));
     }
