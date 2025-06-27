@@ -90,7 +90,7 @@ export const CreateCommentReplyController: RequestHandler = async (
         sendNotification(
           receiverId,
           notificationMsg,
-          parentCommentId,
+          commentReply.comment_reply_id,
           EReactionOnTypes.REPLY,
           req.headers.authorization!
         );
@@ -210,7 +210,7 @@ export const RetriveCommentReplyController: RequestHandler = async (
       ])
       .limit(1)
       .executeTakeFirst();
-    if (!reply) return next(new ApiError(400, "comment not found", true));
+    if (!reply) return next(new ApiError(404, "comment not found", true));
 
     const response = wrapResponse<CommentReplyResponse>({
       commentReplyId: reply.comment_reply_id,

@@ -98,7 +98,7 @@ const CreateCommentReplyController = (req, res, next) => __awaiter(void 0, void 
             .then((res) => {
             const notificationMsg = `${user.username} replied to your comment`;
             const receiverId = res.commenter_id;
-            (0, notificationSender_1.sendNotification)(receiverId, notificationMsg, parentCommentId, validation_1.EReactionOnTypes.REPLY, req.headers.authorization);
+            (0, notificationSender_1.sendNotification)(receiverId, notificationMsg, commentReply.comment_reply_id, validation_1.EReactionOnTypes.REPLY, req.headers.authorization);
         })
             .catch((err) => logger_1.logger.error(err));
     }
@@ -190,7 +190,7 @@ const RetriveCommentReplyController = (req, res, next) => __awaiter(void 0, void
             .limit(1)
             .executeTakeFirst();
         if (!reply)
-            return next(new errors_1.ApiError(400, "comment not found", true));
+            return next(new errors_1.ApiError(404, "comment not found", true));
         const response = (0, responseWrapper_1.wrapResponse)({
             commentReplyId: reply.comment_reply_id,
             repliedById: reply.replied_by_id,
