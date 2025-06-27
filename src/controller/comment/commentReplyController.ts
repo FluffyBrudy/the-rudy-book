@@ -91,7 +91,7 @@ export const CreateCommentReplyController: RequestHandler = async (
           receiverId,
           notificationMsg,
           parentCommentId,
-          EReactionOnTypes.COMMENT,
+          EReactionOnTypes.REPLY,
           req.headers.authorization!
         );
       })
