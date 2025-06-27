@@ -20,6 +20,8 @@ export enum COMMENT {
   REPLY_ROOT = "/reply",
   CREATE = "/create",
   FETCH = "/fetch",
+  FETCH_COMMENT_BY_ID = "/fetch/:commentId",
+  FETCH_REPLY_BY_ID = "/fetch/:commentReplyId",
 }
 
 export enum REACTION {

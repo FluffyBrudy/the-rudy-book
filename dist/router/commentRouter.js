@@ -10,6 +10,8 @@ exports.commentRouter = commentRouter;
 const commentReplyRouter = (0, express_1.Router)();
 commentRouter.post(routes_1.COMMENT.CREATE, commentController_1.CreateCommentController);
 commentRouter.post(routes_1.COMMENT.FETCH, commentController_1.RetriveCommentsController);
+commentRouter.get(routes_1.COMMENT.FETCH_COMMENT_BY_ID, commentController_1.RetriveCommentController);
 commentReplyRouter.post(routes_1.COMMENT.CREATE, commentReplyController_1.CreateCommentReplyController);
 commentReplyRouter.post(routes_1.COMMENT.FETCH, commentReplyController_1.RetriveCommentRepliesController);
+commentReplyRouter.get(routes_1.COMMENT.FETCH_REPLY_BY_ID, commentReplyController_1.RetriveCommentReplyController);
 commentRouter.use(routes_1.COMMENT.REPLY_ROOT, commentReplyRouter);

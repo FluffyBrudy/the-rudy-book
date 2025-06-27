@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RetrivePostsController = exports.CreatePostController = void 0;
+exports.RetrivePostsController = exports.RetrivePostController = exports.CreatePostController = void 0;
 const yup = __importStar(require("yup"));
 const validation_1 = require("../../constants/validation");
 const dbClient_1 = require("../../database/dbClient");
@@ -166,6 +166,59 @@ const CreatePostController = (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 exports.CreatePostController = CreatePostController;
+const RetrivePostController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c, _d, _e;
+    const user = req.user;
+    const postId = (_c = req.params) === null || _c === void 0 ? void 0 : _c.postId;
+    if (!postId)
+        return next(new errors_1.ApiError(422, "invalid postId", true));
+    try {
+        const post = yield dbClient_1.mainDb
+            .selectFrom("post")
+            .leftJoin("media_content", "media_content.post_id", "post.post_id")
+            .leftJoin("text_content", "text_content.post_id", "post.post_id")
+            .leftJoin("reaction", (join) => join
+            .onRef("reaction.reaction_on_id", "=", "post.post_id")
+            .on("reaction.reaction_on_type", "=", "post"))
+            .selectAll("post")
+            .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+            .select("text_content.content")
+            .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
+            .where("post.post_id", "=", postId)
+            .groupBy([
+            "post.post_id",
+            "post.author_id",
+            "post.username",
+            "post.image_url",
+            "post.created_at",
+            "text_content.content",
+        ])
+            .limit(1)
+            .executeTakeFirst();
+        if (!post)
+            return next(new errors_1.ApiError(400, "post not found", true));
+        const response = (0, responseWrapper_1.wrapResponse)({
+            authorId: post.author_id,
+            postId: post.post_id,
+            content: {
+                textContent: (_d = post.content) !== null && _d !== void 0 ? _d : undefined,
+                mediaContent: ((_e = post.mediaUrls) === null || _e === void 0 ? void 0 : _e.every(Boolean))
+                    ? post.mediaUrls
+                    : [],
+            },
+            createdAt: (0, date_fns_1.formatDistanceToNow)(post.created_at, { addSuffix: true }),
+            username: post.username,
+            profilePicture: post.image_url,
+            totalReaction: post.totalReaction,
+            reactions: post.reactions,
+        });
+        res.json(response);
+    }
+    catch (error) {
+        return next(new errors_1.LoggerApiError(error, 500));
+    }
+});
+exports.RetrivePostController = RetrivePostController;
 const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     try {

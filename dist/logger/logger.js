@@ -27,9 +27,11 @@ exports.logger = void 0;
 const pino_1 = __importStar(require("pino"));
 let logger = { error(arg) { }, info(arg) { } };
 exports.logger = logger;
-if (process.env.NODE_ENV === "dev") {
+if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === undefined) {
     let logger = (0, pino_1.default)((0, pino_1.transport)({
-        target: process.env.NODE_ENV === "dev" ? "pino-pretty" : "pino/file",
+        target: process.env.NODE_ENV === "dev"
+            ? "pino-pretty"
+            : "pino/file",
         options: {
             destination: "./logs",
             colorize: false,

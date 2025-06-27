@@ -15,6 +15,7 @@ var POST;
     POST["ROOT"] = "/post";
     POST["CREATE"] = "/create";
     POST["FETCH"] = "/fetch";
+    POST["FETCH_BY_ID"] = "/fetch/:postId";
 })(POST || (exports.POST = POST = {}));
 var COMMENT;
 (function (COMMENT) {
@@ -22,6 +23,8 @@ var COMMENT;
     COMMENT["REPLY_ROOT"] = "/reply";
     COMMENT["CREATE"] = "/create";
     COMMENT["FETCH"] = "/fetch";
+    COMMENT["FETCH_COMMENT_BY_ID"] = "/fetch/:commentId";
+    COMMENT["FETCH_REPLY_BY_ID"] = "/fetch/:commentReplyId";
 })(COMMENT || (exports.COMMENT = COMMENT = {}));
 var REACTION;
 (function (REACTION) {

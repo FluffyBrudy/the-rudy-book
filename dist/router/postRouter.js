@@ -8,3 +8,4 @@ const postRouter = (0, express_1.Router)();
 exports.postRouter = postRouter;
 postRouter.post(routes_1.POST.CREATE, postController_1.CreatePostController);
 postRouter.get(routes_1.POST.FETCH, postController_1.RetrivePostsController);
+postRouter.get(routes_1.POST.FETCH_BY_ID, postController_1.RetrivePostController);

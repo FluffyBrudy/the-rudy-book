@@ -19,6 +19,8 @@ import { CommentReplyResponse } from "../../types/apiResponse";
 import { ExpressUser } from "../../types/globalTypes";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { formatDistanceToNow } from "date-fns";
+import { DB } from "../../types/db/maindb";
+import { OperandValueExpression } from "kysely";
 
 const ReplyRetriveSchema = yup.object().shape({
   parentCommentId: yup.number().required("comment id is required"),
@@ -40,7 +42,7 @@ export const CreateCommentReplyController: RequestHandler = async (
   res,
   next
 ) => {
-  const user = req.user as ExpressUser; // replied_by_id
+  const user = req.user as ExpressUser;
   try {
     const { parentCommentId, replyContent } = CommentReplySchema.validateSync(
       req.body
@@ -50,7 +52,7 @@ export const CreateCommentReplyController: RequestHandler = async (
     const commentReply = await mainDb
       .insertInto("comment_reply")
       .values({
-        parent_comment_id: parentCommentId, // again im notchecking because error come from db for fkey violation if comment doesnt exist
+        parent_comment_id: parentCommentId,
         replied_by_id: user.id,
         reply_content: replyContent,
         username: user.username,
@@ -159,6 +161,71 @@ export const RetriveCommentRepliesController: RequestHandler = async (
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
     }
+    return next(new LoggerApiError(error, 500));
+  }
+};
+
+export const RetriveCommentReplyController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const user = req.user as ExpressUser;
+  console.log(req.params);
+  const commentReplyId = req.params
+    ?.commentReplyId as unknown as OperandValueExpression<
+    DB,
+    "comment_reply",
+    "comment_reply_id"
+  >;
+  if (!commentReplyId) return next(new ApiError(422, "invalid reply id", true));
+  try {
+    const reply = await mainDb
+      .selectFrom("comment_reply")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef(
+            "reaction.reaction_on_id",
+            "=",
+            "comment_reply.comment_reply_id"
+          )
+          .on("reaction.reaction_on_type", "=", "reply")
+      )
+      .innerJoin(
+        "comment",
+        "comment.comment_id",
+        "comment_reply.parent_comment_id"
+      )
+      .selectAll("comment_reply")
+      .select("comment.post_id")
+      .select([totalReactionCount(), aggregatedReactions()])
+      .where("comment_reply.comment_reply_id", "=", commentReplyId)
+      .groupBy([
+        "comment_reply.parent_comment_id",
+        "comment_reply.comment_reply_id",
+        "comment_reply.username",
+        "comment_reply.image_url",
+        "comment_reply.created_at",
+        "comment.post_id",
+      ])
+      .limit(1)
+      .executeTakeFirst();
+    if (!reply) return next(new ApiError(400, "comment not found", true));
+
+    const response = wrapResponse<CommentReplyResponse>({
+      commentReplyId: reply.comment_reply_id,
+      repliedById: reply.replied_by_id,
+      postId: reply.post_id,
+      replyContent: reply.reply_content,
+      createdAt: formatDistanceToNow(reply.created_at!, { addSuffix: true }),
+      username: reply.username,
+      profilePicture: reply.image_url,
+      totalReaction: reply.totalReaction,
+      reactions: reply.reactions,
+      parentCommentId: reply.parent_comment_id,
+    });
+    res.json(response);
+  } catch (error) {
     return next(new LoggerApiError(error, 500));
   }
 };
