@@ -15,6 +15,7 @@ import {
 import {
   retrieveAcceptedFriendship,
   retrieveProfile,
+  retrivePosts,
 } from "../../lib/dbCommonQuery";
 import {
   aggregatedReactions,
@@ -239,8 +240,8 @@ export const RetrivePostsController: RequestHandler = async (
   try {
     const friendsId = await retrieveAcceptedFriendship(user.id);
     const postFetchPromises = await Promise.all([
-      retriveFriendsPost(user.id, friendsId),
-      retriveRandomPostByReactionEngagement(user.id, friendsId),
+      retrivePosts(user.id, friendsId),
+      retriveRandomPostByReactionEngagement([user.id, ...friendsId]),
     ]);
     const filteredPost = postFetchPromises.filter(
       Boolean
@@ -260,67 +261,42 @@ export const RetrivePostsController: RequestHandler = async (
   }
 };
 
-async function retriveFriendsPost(
-  userId: Selectable<Post>["author_id"],
-  friendsIds: string[]
-) {
+export const RetrivePostsByIdController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const user = req.user as ExpressUser;
+  const targetId = req.params.userId as string | undefined;
+  if (!targetId) return next(new BodyValidationError(["user id is required"]));
+
   try {
-    const posts = await mainDb
-      .selectFrom("post")
-      .leftJoin("reaction", (join) =>
-        join
-          .onRef("reaction.reaction_on_id", "=", "post.post_id")
-          .on("reaction.reaction_on_type", "=", "post")
-      )
-      .leftJoin("text_content", "text_content.post_id", "post.post_id")
-      .leftJoin("media_content", "media_content.post_id", "post.post_id")
-
-      .selectAll("post")
-      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
-      .select([totalReactionCount(), aggregatedReactions()])
-      .select("text_content.content")
-      .where("author_id", "in", [...friendsIds, userId])
-      .groupBy([
-        "post.post_id",
-        "post.author_id",
-        "post.created_at",
-        "post.updated_at",
-        "post.image_url",
-        "post.username",
-        "text_content.content",
-      ])
-      .orderBy("created_at", "desc")
-      .limit(50)
-      .execute();
-
-    return posts.map(
-      (post) =>
-        ({
-          authorId: post.author_id,
-          postId: post.post_id,
-          content: {
-            textContent: post.content,
-            mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
-          },
-          createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
-          username: post.username,
-          profilePicture: post.image_url,
-          totalReaction: post.totalReaction,
-          reactions: post.reactions,
-        } as PostResponse)
+    const userId = yup
+      .string()
+      .required()
+      .uuid("user id must be valid id")
+      .validateSync(targetId);
+    const response = await retrivePosts(user.id, [userId]);
+    if (!response) {
+      return next(new ApiError(500, "unable to retrive post", true));
+    }
+    const filteredPost = response?.filter(Boolean) as unknown as
+      | PostResponse[]
+      | null;
+    const posts = filteredPost?.reduce(
+      (accm, post) => accm.concat(post),
+      [] as PostResponse[]
     );
+    const responseObj = wrapResponse<PostResponse[]>(posts);
+    res.status(200).json(responseObj);
   } catch (error) {
-    logger.error(error);
-    return null;
+    if (error instanceof yup.ValidationError)
+      return next(new BodyValidationError(error.errors));
+    return next(new LoggerApiError(error, 500));
   }
-}
+};
 
-/**
- *
- * @param {string} userId to omit users
- */
 async function retriveRandomPostByReactionEngagement(
-  userId: string,
   omitableIds: Array<string>
 ) {
   try {
@@ -338,7 +314,7 @@ async function retriveRandomPostByReactionEngagement(
       .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
       .select([totalReactionCount(), aggregatedReactions()])
       .select("text_content.content")
-      .where("author_id", "not in", [...omitableIds, userId])
+      .where("author_id", "not in", [...omitableIds])
       .groupBy([
         "post.post_id",
         "post.author_id",

@@ -5,6 +5,9 @@ import { mainDb, pigeonDb } from "../database/dbClient";
 import { Profile } from "../types/db/pigeondb";
 import { TableFieldSelection } from "../types/globalTypes";
 import { EReactionOnTypes } from "../constants/validation";
+import { aggregatedReactions, totalReactionCount } from "./dbQueryFraments";
+import { formatDistanceToNow } from "date-fns";
+import { PostResponse } from "../types/apiResponse";
 
 export async function checkPostExist(postId: Selectable<Post>["post_id"]) {
   try {
@@ -108,5 +111,64 @@ export async function checkTargetExist(
       return replyExists.replied_by_id;
     default:
       return null;
+  }
+}
+
+export async function retrivePosts(
+  userId: Selectable<Post>["author_id"],
+  targetIds: string[],
+  includeUser = true,
+  cursor = new Date()
+) {
+  const other = includeUser ? [userId] : [];
+  try {
+    const posts = await mainDb
+      .selectFrom("post")
+      .leftJoin("reaction", (join) =>
+        join
+          .onRef("reaction.reaction_on_id", "=", "post.post_id")
+          .on("reaction.reaction_on_type", "=", "post")
+      )
+      .leftJoin("text_content", "text_content.post_id", "post.post_id")
+      .leftJoin("media_content", "media_content.post_id", "post.post_id")
+
+      .selectAll("post")
+      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select([totalReactionCount(), aggregatedReactions()])
+      .select("text_content.content")
+      .where("author_id", "in", [...targetIds, ...other])
+      .where("post.created_at", "<", cursor)
+      .groupBy([
+        "post.post_id",
+        "post.author_id",
+        "post.created_at",
+        "post.updated_at",
+        "post.image_url",
+        "post.username",
+        "text_content.content",
+      ])
+      .orderBy("created_at", "desc")
+      .limit(50)
+      .execute();
+
+    return posts.map(
+      (post) =>
+        ({
+          authorId: post.author_id,
+          postId: post.post_id,
+          content: {
+            textContent: post.content,
+            mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
+          },
+          createdAt: post.created_at,
+          username: post.username,
+          profilePicture: post.image_url,
+          totalReaction: post.totalReaction,
+          reactions: post.reactions,
+        } as PostResponse)
+    );
+  } catch (error) {
+    logger.error(error);
+    return null;
   }
 }

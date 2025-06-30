@@ -13,6 +13,7 @@ export enum POST {
   CREATE = "/create",
   FETCH = "/fetch",
   FETCH_BY_ID = "/fetch/:postId",
+  FETCH_USER_POST = "/fetch/user/:userId",
 }
 
 export enum COMMENT {
