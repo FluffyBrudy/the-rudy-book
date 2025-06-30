@@ -16,6 +16,7 @@ var POST;
     POST["CREATE"] = "/create";
     POST["FETCH"] = "/fetch";
     POST["FETCH_BY_ID"] = "/fetch/:postId";
+    POST["FETCH_USER_POST"] = "/fetch/user/:userId";
 })(POST || (exports.POST = POST = {}));
 var COMMENT;
 (function (COMMENT) {

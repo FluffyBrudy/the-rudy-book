@@ -9,11 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkTargetExist = exports.retrieveAcceptedFriendship = exports.createNotification = exports.retrieveProfile = exports.checkPostExist = void 0;
+exports.retrivePosts = exports.checkTargetExist = exports.retrieveAcceptedFriendship = exports.createNotification = exports.retrieveProfile = exports.checkPostExist = void 0;
 const kysely_1 = require("kysely");
 const logger_1 = require("../logger/logger");
 const dbClient_1 = require("../database/dbClient");
 const validation_1 = require("../constants/validation");
+const dbQueryFraments_1 = require("./dbQueryFraments");
 function checkPostExist(postId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -108,3 +109,56 @@ function checkTargetExist(reactionOnType, targetId) {
     });
 }
 exports.checkTargetExist = checkTargetExist;
+function retrivePosts(userId_1, targetIds_1) {
+    return __awaiter(this, arguments, void 0, function* (userId, targetIds, includeUser = true, cursor = new Date()) {
+        const other = includeUser ? [userId] : [];
+        try {
+            const posts = yield dbClient_1.mainDb
+                .selectFrom("post")
+                .leftJoin("reaction", (join) => join
+                .onRef("reaction.reaction_on_id", "=", "post.post_id")
+                .on("reaction.reaction_on_type", "=", "post"))
+                .leftJoin("text_content", "text_content.post_id", "post.post_id")
+                .leftJoin("media_content", "media_content.post_id", "post.post_id")
+                .selectAll("post")
+                .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+                .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
+                .select("text_content.content")
+                .where("author_id", "in", [...targetIds, ...other])
+                .where("post.created_at", "<", cursor)
+                .groupBy([
+                "post.post_id",
+                "post.author_id",
+                "post.created_at",
+                "post.updated_at",
+                "post.image_url",
+                "post.username",
+                "text_content.content",
+            ])
+                .orderBy("created_at", "desc")
+                .limit(50)
+                .execute();
+            return posts.map((post) => {
+                var _a;
+                return ({
+                    authorId: post.author_id,
+                    postId: post.post_id,
+                    content: {
+                        textContent: post.content,
+                        mediaContent: ((_a = post.mediaUrls) === null || _a === void 0 ? void 0 : _a.every(Boolean)) ? post.mediaUrls : [],
+                    },
+                    createdAt: post.created_at,
+                    username: post.username,
+                    profilePicture: post.image_url,
+                    totalReaction: post.totalReaction,
+                    reactions: post.reactions,
+                });
+            });
+        }
+        catch (error) {
+            logger_1.logger.error(error);
+            return null;
+        }
+    });
+}
+exports.retrivePosts = retrivePosts;

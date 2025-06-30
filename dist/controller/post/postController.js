@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RetrivePostsController = exports.RetrivePostController = exports.CreatePostController = void 0;
+exports.RetrivePostsByIdController = exports.RetrivePostsController = exports.RetrivePostController = exports.CreatePostController = void 0;
 const yup = __importStar(require("yup"));
 const validation_1 = require("../../constants/validation");
 const dbClient_1 = require("../../database/dbClient");
@@ -224,8 +224,8 @@ const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, voi
     try {
         const friendsId = yield (0, dbCommonQuery_1.retrieveAcceptedFriendship)(user.id);
         const postFetchPromises = yield Promise.all([
-            retriveFriendsPost(user.id, friendsId),
-            retriveRandomPostByReactionEngagement(user.id, friendsId),
+            (0, dbCommonQuery_1.retrivePosts)(user.id, friendsId),
+            retriveRandomPostByReactionEngagement([user.id, ...friendsId]),
         ]);
         const filteredPost = postFetchPromises.filter(Boolean);
         const posts = filteredPost.reduce((accm, post) => accm.concat(post), []);
@@ -240,7 +240,34 @@ const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, voi
     }
 });
 exports.RetrivePostsController = RetrivePostsController;
-function retriveFriendsPost(userId, friendsIds) {
+const RetrivePostsByIdController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const targetId = req.params.userId;
+    if (!targetId)
+        return next(new errors_1.BodyValidationError(["user id is required"]));
+    try {
+        const userId = yup
+            .string()
+            .required()
+            .uuid("user id must be valid id")
+            .validateSync(targetId);
+        const response = yield (0, dbCommonQuery_1.retrivePosts)(user.id, [userId]);
+        if (!response) {
+            return next(new errors_1.ApiError(500, "unable to retrive post", true));
+        }
+        const filteredPost = response === null || response === void 0 ? void 0 : response.filter(Boolean);
+        const posts = filteredPost === null || filteredPost === void 0 ? void 0 : filteredPost.reduce((accm, post) => accm.concat(post), []);
+        const responseObj = (0, responseWrapper_1.wrapResponse)(posts);
+        res.status(200).json(responseObj);
+    }
+    catch (error) {
+        if (error instanceof yup.ValidationError)
+            return next(new errors_1.BodyValidationError(error.errors));
+        return next(new errors_1.LoggerApiError(error, 500));
+    }
+});
+exports.RetrivePostsByIdController = RetrivePostsByIdController;
+function retriveRandomPostByReactionEngagement(omitableIds) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const posts = yield dbClient_1.mainDb
@@ -254,61 +281,7 @@ function retriveFriendsPost(userId, friendsIds) {
                 .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
                 .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
                 .select("text_content.content")
-                .where("author_id", "in", [...friendsIds, userId])
-                .groupBy([
-                "post.post_id",
-                "post.author_id",
-                "post.created_at",
-                "post.updated_at",
-                "post.image_url",
-                "post.username",
-                "text_content.content",
-            ])
-                .orderBy("created_at", "desc")
-                .limit(50)
-                .execute();
-            return posts.map((post) => {
-                var _a;
-                return ({
-                    authorId: post.author_id,
-                    postId: post.post_id,
-                    content: {
-                        textContent: post.content,
-                        mediaContent: ((_a = post.mediaUrls) === null || _a === void 0 ? void 0 : _a.every(Boolean)) ? post.mediaUrls : [],
-                    },
-                    createdAt: (0, date_fns_1.formatDistanceToNow)(post.created_at, { addSuffix: true }),
-                    username: post.username,
-                    profilePicture: post.image_url,
-                    totalReaction: post.totalReaction,
-                    reactions: post.reactions,
-                });
-            });
-        }
-        catch (error) {
-            logger_1.logger.error(error);
-            return null;
-        }
-    });
-}
-/**
- *
- * @param {string} userId to omit users
- */
-function retriveRandomPostByReactionEngagement(userId, omitableIds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const posts = yield dbClient_1.mainDb
-                .selectFrom("post")
-                .leftJoin("reaction", (join) => join
-                .onRef("reaction.reaction_on_id", "=", "post.post_id")
-                .on("reaction.reaction_on_type", "=", "post"))
-                .leftJoin("text_content", "text_content.post_id", "post.post_id")
-                .leftJoin("media_content", "media_content.post_id", "post.post_id")
-                .selectAll("post")
-                .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
-                .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
-                .select("text_content.content")
-                .where("author_id", "not in", [...omitableIds, userId])
+                .where("author_id", "not in", [...omitableIds])
                 .groupBy([
                 "post.post_id",
                 "post.author_id",
