@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateImageURLS = void 0;
+exports.validateImageURLS = validateImageURLS;
 const axios_1 = __importDefault(require("axios"));
 const logger_1 = require("../logger/logger");
 const MAX_FILE_SIZE = 1024 * 1024 * 5;
@@ -52,4 +52,3 @@ function validateImageURLS(imageUrls) {
         return res.every(Boolean);
     });
 }
-exports.validateImageURLS = validateImageURLS;

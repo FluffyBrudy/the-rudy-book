@@ -9,7 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrivePosts = exports.checkTargetExist = exports.retrieveAcceptedFriendship = exports.createNotification = exports.retrieveProfile = exports.checkPostExist = void 0;
+exports.checkPostExist = checkPostExist;
+exports.retrieveProfile = retrieveProfile;
+exports.createNotification = createNotification;
+exports.retrieveAcceptedFriendship = retrieveAcceptedFriendship;
+exports.checkTargetExist = checkTargetExist;
+exports.retrivePosts = retrivePosts;
 const kysely_1 = require("kysely");
 const logger_1 = require("../logger/logger");
 const dbClient_1 = require("../database/dbClient");
@@ -31,7 +36,6 @@ function checkPostExist(postId) {
         }
     });
 }
-exports.checkPostExist = checkPostExist;
 function retrieveProfile(userId_1) {
     return __awaiter(this, arguments, void 0, function* (userId, fields = { picture: true }) {
         const selectableFields = Object.keys(fields).filter((field) => fields[field]);
@@ -46,7 +50,6 @@ function retrieveProfile(userId_1) {
         return profile;
     });
 }
-exports.retrieveProfile = retrieveProfile;
 function createNotification(receiverId, notificationInfo, notificationOnId, notificationOnType) {
     return __awaiter(this, void 0, void 0, function* () {
         const notification = yield dbClient_1.mainDb
@@ -62,7 +65,6 @@ function createNotification(receiverId, notificationInfo, notificationOnId, noti
         return notification;
     });
 }
-exports.createNotification = createNotification;
 function retrieveAcceptedFriendship(userId) {
     return __awaiter(this, void 0, void 0, function* () {
         return (yield dbClient_1.pigeonDb
@@ -78,7 +80,6 @@ function retrieveAcceptedFriendship(userId) {
             .execute()).map(({ friendId }) => friendId);
     });
 }
-exports.retrieveAcceptedFriendship = retrieveAcceptedFriendship;
 function checkTargetExist(reactionOnType, targetId) {
     return __awaiter(this, void 0, void 0, function* () {
         switch (reactionOnType) {
@@ -108,7 +109,6 @@ function checkTargetExist(reactionOnType, targetId) {
         }
     });
 }
-exports.checkTargetExist = checkTargetExist;
 function retrivePosts(userId_1, targetIds_1) {
     return __awaiter(this, arguments, void 0, function* (userId, targetIds, includeUser = true, cursor = new Date()) {
         const other = includeUser ? [userId] : [];
@@ -161,4 +161,3 @@ function retrivePosts(userId_1, targetIds_1) {
         }
     });
 }
-exports.retrivePosts = retrivePosts;

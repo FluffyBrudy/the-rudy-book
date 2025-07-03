@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.convertSVGToBuffer = exports.uploadImageFromBuffer = void 0;
+exports.uploadImageFromBuffer = uploadImageFromBuffer;
+exports.convertSVGToBuffer = convertSVGToBuffer;
 const cloudinary_1 = require("cloudinary");
 const stream_1 = require("stream");
 const logger_1 = require("../logger/logger");
@@ -60,9 +61,7 @@ function uploadImageFromBuffer(imageBuffer, name) {
         }
     });
 }
-exports.uploadImageFromBuffer = uploadImageFromBuffer;
 function convertSVGToBuffer(svgString) {
     const bufferData = Buffer.from(svgString, "utf-8");
     return bufferData;
 }
-exports.convertSVGToBuffer = convertSVGToBuffer;

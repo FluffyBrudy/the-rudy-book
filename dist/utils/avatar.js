@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadDefaultProfileImage = void 0;
+exports.uploadDefaultProfileImage = uploadDefaultProfileImage;
 const imageUpload_1 = require("../service/imageUpload");
 function generateGradient(name) {
     const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -45,4 +45,3 @@ function uploadDefaultProfileImage(name) {
         return (_a = uploadResponse === null || uploadResponse === void 0 ? void 0 : uploadResponse.secure_url) !== null && _a !== void 0 ? _a : null;
     });
 }
-exports.uploadDefaultProfileImage = uploadDefaultProfileImage;
