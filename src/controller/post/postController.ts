@@ -194,7 +194,7 @@ export const RetrivePostController: RequestHandler = async (req, res, next) => {
           .on("reaction.reaction_on_type", "=", "post")
       )
       .selectAll("post")
-      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select((eb) => eb.fn.jsonAgg("media_content.media_url").distinct().as("mediaUrls"))
       .select("text_content.content")
       .select([totalReactionCount(), aggregatedReactions()])
       .where("post.post_id", "=", postId)
@@ -208,7 +208,8 @@ export const RetrivePostController: RequestHandler = async (req, res, next) => {
       ])
       .limit(1)
       .executeTakeFirst();
-    if (!post) return next(new ApiError(400, "post not found", true));
+      console.log(post)
+    if (!post) return next(new ApiError(404, "post not found", true));
 
     const response = wrapResponse<PostResponse>({
       authorId: post.author_id,
@@ -250,9 +251,10 @@ export const RetrivePostsController: RequestHandler = async (
       (accm, post) => accm.concat(post),
       [] as PostResponse[]
     );
+    
 
-    shuffle(filteredPost);
-
+    // shuffle(filteredPost);
+    console.log(posts.map(itm=>itm.content?.mediaContent))
     if (!posts) return next(new ApiError(500, "unable to retrive post", true));
     const responseObj = wrapResponse<PostResponse[]>(posts);
     res.status(200).json(responseObj);
@@ -311,7 +313,7 @@ async function retriveRandomPostByReactionEngagement(
       .leftJoin("media_content", "media_content.post_id", "post.post_id")
 
       .selectAll("post")
-      .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+      .select((eb) => eb.fn.jsonAgg("media_content.media_url").distinct().as("mediaUrls"))
       .select([totalReactionCount(), aggregatedReactions()])
       .select("text_content.content")
       .where("author_id", "not in", [...omitableIds])

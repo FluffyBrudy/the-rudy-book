@@ -71,7 +71,7 @@ export const CreateCommentController: RequestHandler = async (
       commentorId: userId,
       commentBody: comment.comment_body,
       postId: postId,
-      createdAt: formatDistanceToNow(comment.created_at, { addSuffix: true }),
+      createdAt: comment.created_at,
       username: comment.username,
       profilePicture: comment.image_url,
       totalReaction: 0,
