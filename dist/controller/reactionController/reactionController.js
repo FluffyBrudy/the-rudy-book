@@ -89,7 +89,6 @@ const CreateUserReactionController = (req, res, next) => __awaiter(void 0, void 
       `.execute(dbClient_1.mainDb);
         const { toggle_reaction } = queryResponse.rows[0];
         const { action, reaction } = toggle_reaction;
-        console.log(action);
         if (reaction === null) {
             const responseObj = (0, responseWrapper_1.wrapResponse)({
                 undo: true,
@@ -115,7 +114,6 @@ const CreateUserReactionController = (req, res, next) => __awaiter(void 0, void 
             .catch();
     }
     catch (error) {
-        console.log(error);
         if (error instanceof yup.ValidationError) {
             return next(new errors_1.BodyValidationError(error.errors));
         }

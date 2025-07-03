@@ -54,7 +54,6 @@ const logger_1 = require("../../logger/logger");
 const imageValidation_1 = require("../../utils/imageValidation");
 const responseWrapper_1 = require("../../utils/responseWrapper");
 const date_fns_1 = require("date-fns");
-const randomUtils_1 = require("../../utils/randomUtils");
 const PostSchemaValidation = yup.object().shape({
     contents: yup
         .object()
@@ -191,7 +190,7 @@ const RetrivePostController = (req, res, next) => __awaiter(void 0, void 0, void
             .onRef("reaction.reaction_on_id", "=", "post.post_id")
             .on("reaction.reaction_on_type", "=", "post"))
             .selectAll("post")
-            .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+            .select((eb) => eb.fn.jsonAgg("media_content.media_url").distinct().as("mediaUrls"))
             .select("text_content.content")
             .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
             .where("post.post_id", "=", postId)
@@ -206,7 +205,7 @@ const RetrivePostController = (req, res, next) => __awaiter(void 0, void 0, void
             .limit(1)
             .executeTakeFirst();
         if (!post)
-            return next(new errors_1.ApiError(400, "post not found", true));
+            return next(new errors_1.ApiError(404, "post not found", true));
         const response = (0, responseWrapper_1.wrapResponse)({
             authorId: post.author_id,
             postId: post.post_id,
@@ -239,7 +238,7 @@ const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, voi
         ]);
         const filteredPost = postFetchPromises.filter(Boolean);
         const posts = filteredPost.reduce((accm, post) => accm.concat(post), []);
-        (0, randomUtils_1.shuffle)(filteredPost);
+        // shuffle(filteredPost);
         if (!posts)
             return next(new errors_1.ApiError(500, "unable to retrive post", true));
         const responseObj = (0, responseWrapper_1.wrapResponse)(posts);
@@ -288,7 +287,7 @@ function retriveRandomPostByReactionEngagement(omitableIds) {
                 .leftJoin("text_content", "text_content.post_id", "post.post_id")
                 .leftJoin("media_content", "media_content.post_id", "post.post_id")
                 .selectAll("post")
-                .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+                .select((eb) => eb.fn.jsonAgg("media_content.media_url").distinct().as("mediaUrls"))
                 .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
                 .select("text_content.content")
                 .where("author_id", "not in", [...omitableIds])

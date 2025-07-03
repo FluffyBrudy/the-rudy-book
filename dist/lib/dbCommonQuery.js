@@ -121,7 +121,7 @@ function retrivePosts(userId_1, targetIds_1) {
                 .leftJoin("text_content", "text_content.post_id", "post.post_id")
                 .leftJoin("media_content", "media_content.post_id", "post.post_id")
                 .selectAll("post")
-                .select((eb) => eb.fn.jsonAgg("media_content.media_url").as("mediaUrls"))
+                .select((eb) => eb.fn.jsonAgg("media_content.media_url").distinct().as("mediaUrls"))
                 .select([(0, dbQueryFraments_1.totalReactionCount)(), (0, dbQueryFraments_1.aggregatedReactions)()])
                 .select("text_content.content")
                 .where("author_id", "in", [...targetIds, ...other])

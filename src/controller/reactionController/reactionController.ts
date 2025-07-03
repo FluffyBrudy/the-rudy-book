@@ -64,7 +64,7 @@ export const CreateUserReactionController: RequestHandler = async (
 
     const { toggle_reaction } = queryResponse.rows[0];
     const { action, reaction } = toggle_reaction;
-    console.log(action);
+
     if (reaction === null) {
       const responseObj = wrapResponse<UndoReactionResponse>({
         undo: true,
@@ -97,7 +97,6 @@ export const CreateUserReactionController: RequestHandler = async (
       .then()
       .catch();
   } catch (error) {
-    console.log(error);
     if (error instanceof yup.ValidationError) {
       return next(new BodyValidationError(error.errors));
     }

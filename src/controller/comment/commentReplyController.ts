@@ -171,7 +171,7 @@ export const RetriveCommentReplyController: RequestHandler = async (
   next
 ) => {
   const user = req.user as ExpressUser;
-  console.log(req.params);
+
   const commentReplyId = req.params
     ?.commentReplyId as unknown as OperandValueExpression<
     DB,

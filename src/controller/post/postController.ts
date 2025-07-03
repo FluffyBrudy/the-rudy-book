@@ -208,7 +208,7 @@ export const RetrivePostController: RequestHandler = async (req, res, next) => {
       ])
       .limit(1)
       .executeTakeFirst();
-      console.log(post)
+
     if (!post) return next(new ApiError(404, "post not found", true));
 
     const response = wrapResponse<PostResponse>({
@@ -251,10 +251,10 @@ export const RetrivePostsController: RequestHandler = async (
       (accm, post) => accm.concat(post),
       [] as PostResponse[]
     );
-    
+
 
     // shuffle(filteredPost);
-    console.log(posts.map(itm=>itm.content?.mediaContent))
+
     if (!posts) return next(new ApiError(500, "unable to retrive post", true));
     const responseObj = wrapResponse<PostResponse[]>(posts);
     res.status(200).json(responseObj);
@@ -331,19 +331,19 @@ async function retriveRandomPostByReactionEngagement(
       .execute();
     return posts.map(
       (post) =>
-        ({
-          authorId: post.author_id,
-          postId: post.post_id,
-          content: {
-            textContent: post.content,
-            mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
-          },
-          createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
-          username: post.username,
-          profilePicture: post.image_url,
-          totalReaction: post.totalReaction,
-          reactions: post.reactions,
-        } as PostResponse)
+      ({
+        authorId: post.author_id,
+        postId: post.post_id,
+        content: {
+          textContent: post.content,
+          mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
+        },
+        createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
+        username: post.username,
+        profilePicture: post.image_url,
+        totalReaction: post.totalReaction,
+        reactions: post.reactions,
+      } as PostResponse)
     );
   } catch (error) {
     logger.error(error);

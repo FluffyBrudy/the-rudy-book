@@ -93,7 +93,7 @@ const CreateCommentController = (req, res, next) => __awaiter(void 0, void 0, vo
             commentorId: userId,
             commentBody: comment.comment_body,
             postId: postId,
-            createdAt: (0, date_fns_1.formatDistanceToNow)(comment.created_at, { addSuffix: true }),
+            createdAt: comment.created_at,
             username: comment.username,
             profilePicture: comment.image_url,
             totalReaction: 0,

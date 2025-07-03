@@ -174,7 +174,6 @@ exports.RetriveCommentRepliesController = RetriveCommentRepliesController;
 const RetriveCommentReplyController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const user = req.user;
-    console.log(req.params);
     const commentReplyId = (_a = req.params) === null || _a === void 0 ? void 0 : _a.commentReplyId;
     if (!commentReplyId)
         return next(new errors_1.ApiError(422, "invalid reply id", true));
