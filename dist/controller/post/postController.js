@@ -260,7 +260,7 @@ const RetrivePostsByIdController = (req, res, next) => __awaiter(void 0, void 0,
             .required()
             .uuid("user id must be valid id")
             .validateSync(targetId);
-        const response = yield (0, dbCommonQuery_1.retrivePosts)(user.id, [userId]);
+        const response = yield (0, dbCommonQuery_1.retrivePosts)(user.id, [userId], false);
         if (!response) {
             return next(new errors_1.ApiError(500, "unable to retrive post", true));
         }

@@ -278,7 +278,7 @@ export const RetrivePostsByIdController: RequestHandler = async (
       .required()
       .uuid("user id must be valid id")
       .validateSync(targetId);
-    const response = await retrivePosts(user.id, [userId]);
+    const response = await retrivePosts(user.id, [userId], false);
     if (!response) {
       return next(new ApiError(500, "unable to retrive post", true));
     }
