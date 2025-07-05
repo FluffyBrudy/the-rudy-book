@@ -1,14 +1,10 @@
 import { Router } from "express";
 import { AUTH } from "./routes";
-import {
-  LoginController,
-  RegisterController,
-} from "../controller/auth/authController";
+import { LoginController } from "../controller/auth/loginController";
+import { RegisterController } from "../controller/auth/registerController";
 import { verifyAuth } from "../middleware/authVerification";
-import {
-  TokenAuthorizationController,
-  TokenRefreshController,
-} from "../controller/auth/tokenController";
+import { TokenAuthorizationController } from "../controller/auth/tokenAuthorizationController";
+import { TokenRefreshController } from "../controller/auth/tokenRefreshController";
 
 const authRouter = Router();
 

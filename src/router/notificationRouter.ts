@@ -1,10 +1,8 @@
 import { Router } from "express";
 import { NOTIFICATION } from "./routes";
-import {
-  DeleteNotificationController,
-  RetriveNotificationController,
-  ToggleNotificationReadStatus,
-} from "../controller/notification/NotificationController";
+import { DeleteNotificationController } from "../controller/notification/deleteNotificationController";
+import { RetriveNotificationController } from "../controller/notification/retriveNotificationController";
+import { ToggleNotificationReadStatus } from "../controller/notification/toggleNotificationReadStatus";
 
 const notificationRouter = Router();
 

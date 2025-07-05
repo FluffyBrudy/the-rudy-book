@@ -1,15 +1,11 @@
 import { Router } from "express";
 import { COMMENT } from "./routes";
-import {
-  CreateCommentController,
-  RetriveCommentController,
-  RetriveCommentsController,
-} from "../controller/comment/commentController";
-import {
-  CreateCommentReplyController,
-  RetriveCommentRepliesController,
-  RetriveCommentReplyController,
-} from "../controller/comment/commentReplyController";
+import { CreateCommentController } from "../controller/comment/createCommentController";
+import { RetriveCommentController } from "../controller/comment/retriveCommentController";
+import { RetriveCommentsController } from "../controller/comment/retriveCommentsController";
+import { CreateCommentReplyController } from "../controller/comment/createCommentReplyController";
+import { RetriveCommentRepliesController } from "../controller/comment/retriveCommentRepliesController";
+import { RetriveCommentReplyController } from "../controller/comment/retriveCommentReplyController";
 
 const commentRouter = Router();
 const commentReplyRouter = Router();

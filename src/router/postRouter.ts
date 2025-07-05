@@ -1,11 +1,9 @@
 import { Router } from "express";
 import { POST } from "./routes";
-import {
-  CreatePostController,
-  RetrivePostController,
-  RetrivePostsByIdController,
-  RetrivePostsController,
-} from "../controller/post/postController";
+import { CreatePostController } from "../controller/post/createPostController";
+import { RetrivePostController } from "../controller/post/retrivePostController";
+import { RetrivePostsByIdController } from "../controller/post/retrivePostsByIdController";
+import { RetrivePostsController } from "../controller/post/retrivePostsController";
 
 const postRouter = Router();
 
