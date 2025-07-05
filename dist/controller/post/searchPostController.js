@@ -26,18 +26,18 @@ const SearchPostController = (req, res, next) => __awaiter(void 0, void 0, void 
         const hasLexeme = query.match(lexemeRegex);
         if (!hasLexeme) {
             const posts = yield (0, kysely_1.sql) `
-            SELECT content_tsv, post_id from post
-            WHERE content_tsv @@ plainto_tsquery('english', ${query})
-            `.execute(dbClient_1.mainDb);
+              SELECT content_tsv, post_id from text_content
+              WHERE content_tsv @@ plainto_tsquery(${query})
+              `.execute(dbClient_1.mainDb);
             const response = (0, responseWrapper_1.wrapResponse)(posts);
             res.json(response);
         }
         else {
             const tokenizedQuery = query.split(lexemeRegex).join('|');
             const posts = yield (0, kysely_1.sql) `
-            SELECT content_tsv, post_id from post
-            WHERE content_tsv @@ plainto_tsquery('english', ${tokenizedQuery})
-            `.execute(dbClient_1.mainDb);
+              SELECT content_tsv, post_id from text_content
+              WHERE content_tsv @@ plainto_tsquery(${tokenizedQuery})
+              `.execute(dbClient_1.mainDb);
             const response = (0, responseWrapper_1.wrapResponse)(posts);
             res.json(response);
         }

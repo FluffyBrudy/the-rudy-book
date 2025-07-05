@@ -14,17 +14,17 @@ export const SearchPostController: RequestHandler = async (req, res, next) => {
         const hasLexeme = query.match(lexemeRegex)
         if (!hasLexeme) {
             const posts = await sql`
-            SELECT content_tsv, post_id from post
-            WHERE content_tsv @@ plainto_tsquery('english', ${query})
-            `.execute(mainDb);
+              SELECT content_tsv, post_id from text_content
+              WHERE content_tsv @@ plainto_tsquery(${query})
+              `.execute(mainDb);
             const response = wrapResponse(posts)
             res.json(response)
         } else {
             const tokenizedQuery = query.split(lexemeRegex).join('|')
             const posts = await sql`
-            SELECT content_tsv, post_id from post
-            WHERE content_tsv @@ plainto_tsquery('english', ${tokenizedQuery})
-            `.execute(mainDb);
+              SELECT content_tsv, post_id from text_content
+              WHERE content_tsv @@ plainto_tsquery(${tokenizedQuery})
+              `.execute(mainDb);
             const response = wrapResponse(posts)
             res.json(response)
         }
