@@ -7,9 +7,11 @@ const createPostController_1 = require("../controller/post/createPostController"
 const retrivePostController_1 = require("../controller/post/retrivePostController");
 const retrivePostsByIdController_1 = require("../controller/post/retrivePostsByIdController");
 const retrivePostsController_1 = require("../controller/post/retrivePostsController");
+const searchPostController_1 = require("../controller/post/searchPostController");
 const postRouter = (0, express_1.Router)();
 exports.postRouter = postRouter;
 postRouter.post(routes_1.POST.CREATE, createPostController_1.CreatePostController);
 postRouter.get(routes_1.POST.FETCH, retrivePostsController_1.RetrivePostsController);
 postRouter.get(routes_1.POST.FETCH_BY_ID, retrivePostController_1.RetrivePostController);
 postRouter.get(routes_1.POST.FETCH_USER_POST, retrivePostsByIdController_1.RetrivePostsByIdController);
+postRouter.get(routes_1.POST.SEARCH, searchPostController_1.SearchPostController);
