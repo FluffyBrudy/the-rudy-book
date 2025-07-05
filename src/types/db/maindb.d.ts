@@ -69,6 +69,7 @@ export interface Reaction {
 
 export interface TextContent {
   content: string;
+  content_tsv?: string; // tsvector hardcoded for now cuz i added not null constraint 👀
   post_id: number;
   text_content_id: Generated<number>;
 }

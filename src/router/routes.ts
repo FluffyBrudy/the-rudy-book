@@ -12,6 +12,7 @@ export enum POST {
   ROOT = "/post",
   CREATE = "/create",
   FETCH = "/fetch",
+  SEARCH = "/search",
   FETCH_BY_ID = "/fetch/:postId",
   FETCH_USER_POST = "/fetch/user/:userId",
 }

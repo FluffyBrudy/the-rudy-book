@@ -15,6 +15,7 @@ var POST;
     POST["ROOT"] = "/post";
     POST["CREATE"] = "/create";
     POST["FETCH"] = "/fetch";
+    POST["SEARCH"] = "/search";
     POST["FETCH_BY_ID"] = "/fetch/:postId";
     POST["FETCH_USER_POST"] = "/fetch/user/:userId";
 })(POST || (exports.POST = POST = {}));
