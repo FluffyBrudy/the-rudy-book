@@ -86,3 +86,9 @@ export type NotificationsResponse = {
   createdAt: Date | string;
   isRead: boolean;
 };
+
+export type SearchPostResponse = {
+  postId: number;
+  matchedContent: string;
+  fullContent: string
+}

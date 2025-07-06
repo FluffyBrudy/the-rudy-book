@@ -16,7 +16,7 @@ const kysely_1 = require("kysely");
 const responseWrapper_1 = require("../../utils/responseWrapper");
 const SearchPostController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const query = ((_a = req.query) !== null && _a !== void 0 ? _a : "");
+    const query = ((_a = req.query.q) !== null && _a !== void 0 ? _a : "");
     if (!query)
         return next(new errors_1.ApiError(400, "empty query"));
     if (query.length < 3)
@@ -26,19 +26,19 @@ const SearchPostController = (req, res, next) => __awaiter(void 0, void 0, void 
         const hasLexeme = query.match(lexemeRegex);
         if (!hasLexeme) {
             const posts = yield (0, kysely_1.sql) `
-              SELECT content_tsv, post_id from text_content
-              WHERE content_tsv @@ plainto_tsquery(${query})
+              SELECT content_tsv, post_id, content from text_content
+              WHERE content_tsv @@ to_tsquery(${query})
               `.execute(dbClient_1.mainDb);
-            const response = (0, responseWrapper_1.wrapResponse)(posts);
+            const response = (0, responseWrapper_1.wrapResponse)(formatDbResponse(posts.rows));
             res.json(response);
         }
         else {
             const tokenizedQuery = query.split(lexemeRegex).join('|');
             const posts = yield (0, kysely_1.sql) `
-              SELECT content_tsv, post_id from text_content
-              WHERE content_tsv @@ plainto_tsquery(${tokenizedQuery})
+              SELECT content_tsv, post_id, content from text_content
+              WHERE content_tsv @@ to_tsquery(${tokenizedQuery})
               `.execute(dbClient_1.mainDb);
-            const response = (0, responseWrapper_1.wrapResponse)(posts);
+            const response = (0, responseWrapper_1.wrapResponse)(formatDbResponse(posts.rows));
             res.json(response);
         }
     }
@@ -47,3 +47,10 @@ const SearchPostController = (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 exports.SearchPostController = SearchPostController;
+function formatDbResponse(response) {
+    return response.map(obj => ({
+        postId: obj.post_id,
+        matchedContent: obj.content_tsv,
+        fullContent: obj.content
+    }));
+}
