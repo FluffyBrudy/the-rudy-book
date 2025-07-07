@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { sign as JWTSign, verify as JWTVerify } from "jsonwebtoken";
+import { JsonWebTokenError, sign as JWTSign, verify as JWTVerify } from "jsonwebtoken";
 import { ExpressUser } from "../../types/globalTypes";
 import { pigeonDb } from "../../database/dbClient";
 import { wrapResponse } from "../../utils/responseWrapper";
@@ -12,8 +12,8 @@ export const TokenRefreshController: RequestHandler = async (
   next
 ) => {
   try {
-    const token = req.cookies["refreshToken"] as string | undefined;
-    if (!token) return next(new ApiError(400));
+    const token = req.signedCookies.refreshToken as unknown as string | undefined
+    if (!token) return next(new ApiError(400, "REFRESH_TOKEN_NOT_FOUND", true));
     const { id } = JWTVerify(
       token,
       process.env.JWT_REFRESH_SECRET!
@@ -32,20 +32,6 @@ export const TokenRefreshController: RequestHandler = async (
       process.env.JWT_SECRET!,
       { expiresIn: "15m" }
     );
-    const refreshToken = JWTSign(
-      { id: user.id, username: user.username },
-      process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: "7d" }
-    );
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      signed: true,
-      sameSite: "none",
-      partitioned: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
 
     const responseObj = wrapResponse<LoginResponse>({
       accessToken,
@@ -56,6 +42,9 @@ export const TokenRefreshController: RequestHandler = async (
     });
     res.json(responseObj);
   } catch (error) {
+    if (error instanceof JsonWebTokenError) {
+      return next(new ApiError(500, "unable to refresh token", true))
+    }
     new LoggerApiError(error, 500);
   }
 };

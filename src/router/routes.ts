@@ -4,7 +4,7 @@ export enum AUTH {
   ROOT = "/auth",
   REGISTER = "/register",
   LOGIN = "/login",
-  REFRESH_TOKEN = "/refresh-token",
+  REFRESH_TOKEN = "/refresh",
   AUTHORIZE = "/authorize",
 }
 
