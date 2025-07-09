@@ -13,7 +13,10 @@ export const TokenRefreshController: RequestHandler = async (
 ) => {
   try {
     const token = req.signedCookies.refreshToken as unknown as string | undefined
-    if (!token) return next(new ApiError(400, "REFRESH_TOKEN_NOT_FOUND", true));
+    if (!token) {
+      res.status(204).end()
+      return;
+    }
     const { id } = JWTVerify(
       token,
       process.env.JWT_REFRESH_SECRET!

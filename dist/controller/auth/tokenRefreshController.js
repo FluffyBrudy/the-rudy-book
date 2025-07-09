@@ -17,8 +17,10 @@ const errors_1 = require("../../errors/errors");
 const TokenRefreshController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = req.signedCookies.refreshToken;
-        if (!token)
-            return next(new errors_1.ApiError(400, "REFRESH_TOKEN_NOT_FOUND", true));
+        if (!token) {
+            res.status(204).end();
+            return;
+        }
         const { id } = (0, jsonwebtoken_1.verify)(token, process.env.JWT_REFRESH_SECRET);
         const user = yield dbClient_1.pigeonDb
             .selectFrom("User")
