@@ -6,6 +6,7 @@ export enum AUTH {
   LOGIN = "/login",
   REFRESH_TOKEN = "/refresh",
   AUTHORIZE = "/authorize",
+  LOGOUT = "/logout"
 }
 
 export enum POST {

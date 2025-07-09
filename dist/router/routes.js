@@ -9,6 +9,7 @@ var AUTH;
     AUTH["LOGIN"] = "/login";
     AUTH["REFRESH_TOKEN"] = "/refresh";
     AUTH["AUTHORIZE"] = "/authorize";
+    AUTH["LOGOUT"] = "/logout";
 })(AUTH || (exports.AUTH = AUTH = {}));
 var POST;
 (function (POST) {
