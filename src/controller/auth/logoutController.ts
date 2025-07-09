@@ -12,7 +12,8 @@ export const LogoutController = (
             secure: true,
             signed: true,
             sameSite: "none",
-            path: "/",
+            partitioned: true,
+            path: "/"
         });
 
         res.status(200).json({ message: "Successfully logged out." });

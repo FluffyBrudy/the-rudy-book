@@ -86,6 +86,7 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             sameSite: "none",
             partitioned: true,
             maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: "/"
         });
         const responseObj = (0, responseWrapper_1.wrapResponse)({
             accessToken,

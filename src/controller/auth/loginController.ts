@@ -61,6 +61,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       sameSite: "none",
       partitioned: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: "/"
     });
 
     const responseObj = wrapResponse<LoginResponse>({
