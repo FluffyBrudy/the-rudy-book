@@ -44,7 +44,7 @@ const TokenRefreshController = (req, res, next) => __awaiter(void 0, void 0, voi
         if (error instanceof jsonwebtoken_1.JsonWebTokenError) {
             return next(new errors_1.ApiError(500, "unable to refresh token", true));
         }
-        new errors_1.LoggerApiError(error, 500);
+        return next(new errors_1.LoggerApiError(error, 500));
     }
 });
 exports.TokenRefreshController = TokenRefreshController;
