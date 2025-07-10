@@ -48,6 +48,6 @@ export const TokenRefreshController: RequestHandler = async (
     if (error instanceof JsonWebTokenError) {
       return next(new ApiError(500, "unable to refresh token", true))
     }
-    new LoggerApiError(error, 500);
+    return next(new LoggerApiError(error, 500));
   }
 };
