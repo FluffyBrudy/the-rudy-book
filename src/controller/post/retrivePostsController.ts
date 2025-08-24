@@ -8,7 +8,10 @@ import { ExpressUser } from "../../types/globalTypes";
 import { wrapResponse } from "../../utils/responseWrapper";
 import { logger } from "../../logger/logger";
 import { mainDb } from "../../database/dbClient";
-import { aggregatedReactions, totalReactionCount } from "../../lib/dbQueryFraments";
+import {
+  aggregatedReactions,
+  totalReactionCount,
+} from "../../lib/dbQueryFraments";
 
 export const RetrivePostsController: RequestHandler = async (
   req,
@@ -19,8 +22,8 @@ export const RetrivePostsController: RequestHandler = async (
   try {
     const friendsId = await retrieveAcceptedFriendship(user.id);
     const postFetchPromises = await Promise.all([
-      retrivePosts(user.id, friendsId),
       retriveRandomPostByReactionEngagement([user.id, ...friendsId]),
+      retrivePosts(user.id, friendsId),
     ]);
     const filteredPost = postFetchPromises.filter(
       Boolean
@@ -72,19 +75,19 @@ async function retriveRandomPostByReactionEngagement(
       .execute();
     return posts.map(
       (post) =>
-      ({
-        authorId: post.author_id,
-        postId: post.post_id,
-        content: {
-          textContent: post.content,
-          mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
-        },
-        createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
-        username: post.username,
-        profilePicture: post.image_url,
-        totalReaction: post.totalReaction,
-        reactions: post.reactions,
-      } as PostResponse)
+        ({
+          authorId: post.author_id,
+          postId: post.post_id,
+          content: {
+            textContent: post.content,
+            mediaContent: post.mediaUrls?.every(Boolean) ? post.mediaUrls : [],
+          },
+          createdAt: formatDistanceToNow(post.created_at!, { addSuffix: true }),
+          username: post.username,
+          profilePicture: post.image_url,
+          totalReaction: post.totalReaction,
+          reactions: post.reactions,
+        } as PostResponse)
     );
   } catch (error) {
     logger.error(error);

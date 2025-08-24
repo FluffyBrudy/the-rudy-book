@@ -23,8 +23,8 @@ const RetrivePostsController = (req, res, next) => __awaiter(void 0, void 0, voi
     try {
         const friendsId = yield (0, dbCommonQuery_1.retrieveAcceptedFriendship)(user.id);
         const postFetchPromises = yield Promise.all([
-            (0, dbCommonQuery_2.retrivePosts)(user.id, friendsId),
             retriveRandomPostByReactionEngagement([user.id, ...friendsId]),
+            (0, dbCommonQuery_2.retrivePosts)(user.id, friendsId),
         ]);
         const filteredPost = postFetchPromises.filter(Boolean);
         const posts = filteredPost.reduce((accm, post) => accm.concat(post), []);
